@@ -956,9 +956,9 @@ document.addEventListener('input',e=>{
 /* ---------- ghép ảnh acc ---------- */
 const MF="'Be Vietnam Pro','Segoe UI',Roboto,Arial,sans-serif",MGOLD='rgba(245,185,66,.95)';
 const mc=(v,a,b)=>Math.min(b,Math.max(a,v));
-const newMerge=()=>({step:1,items:[],mode:'sync',sync:{x:0,y:0,w:1,h:1},cur:0,adv:false,optOpen:true,opt:{bg:true,stats:true,border:false,title:false},cfg:{tpl:1,perRow1:7,perRow2:8,rowGap:36,heroes:'',skins:'',giayS:'',giayTS:'',theDoiTen:'',maAcc:'',title:'',rx:30,rw:69,iy:3,ih:21,ry:26,rh:61,bg1:'#26378a',bg2:'#131a4a',scale1:100,scale2:100},ex:{kills:[]},out:null});
-function mgLoad(file){return new Promise((res,rej)=>{const url=URL.createObjectURL(file),im=new Image();
-  im.onload=()=>{const r=Math.min(1,1800/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.max(1,Math.round(im.width*r));c.height=Math.max(1,Math.round(im.height*r));c.getContext('2d').drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(url);res(c)};
+const newMerge=()=>({step:1,items:[],mode:'sync',sync:{x:0,y:0,w:1,h:1},cur:0,adv:false,optOpen:true,opt:{bg:true,stats:true,border:false,title:false,cover:true},cfg:{tpl:1,perRow1:7,perRow2:8,rowGap:36,heroes:'',skins:'',giayS:'',giayTS:'',theDoiTen:'',maAcc:'',title:'',rx:30,rw:69,iy:3,ih:21,ry:26,rh:61,bg1:'#26378a',bg2:'#131a4a',scale1:100,scale2:100,covx:5,covy:10,covw:25,covh:18,coverStyle:'solid',coverColor:'#1c2b5e',coverText:''},ex:{kills:[]},out:null});
+function mgLoad(file,max){max=max||1800;return new Promise((res,rej)=>{const url=URL.createObjectURL(file),im=new Image();
+  im.onload=()=>{const r=Math.min(1,max/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.max(1,Math.round(im.width*r));c.height=Math.max(1,Math.round(im.height*r));c.getContext('2d').drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(url);res(c)};
   im.onerror=()=>{URL.revokeObjectURL(url);rej(new Error('Ảnh không hợp lệ'))};im.src=url})}
 const mgUrl=(cv,max)=>{const r=Math.min(1,max/Math.max(cv.width,cv.height)),c=document.createElement('canvas');c.width=Math.max(1,Math.round(cv.width*r));c.height=Math.max(1,Math.round(cv.height*r));c.getContext('2d').drawImage(cv,0,0,c.width,c.height);return c.toDataURL('image/jpeg',.78)};
 function mgRR(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath()}
@@ -993,7 +993,7 @@ async function mgDraw(M,sample){
 
   if(tpl===1){
     /* MẪU 1: thông báo hạ → avatar + skin → [số tướng/skin + tỉ lệ thắng] + skin → các hàng skin */
-    const n0=mc(Math.round(N(cf.perRow1,7)),2,12),n=mc(Math.round(n0/sc+1e-6),2,12),cw=(inner-(n-1)*GX)/n,ch=cw/asp,hasPanel=!!(stats.length||ex.win||ex.power),span=n>=5?n-3:Math.max(1,n-1);
+    const n0=mc(Math.round(N(cf.perRow1,7)),2,20),n=mc(Math.round(n0/sc+1e-6),2,20),cw=(inner-(n-1)*GX)/n,ch=cw/asp,hasPanel=!!(stats.length||ex.win||ex.power),span=n>=5?n-3:Math.max(1,n-1);
     const rows=[];let idx=0,left=cards.length;
     if(kills.length){const kw=(inner-(kills.length-1)*GX*2)/kills.length;rows.push({t:'k',kw:kw,h:Math.min(150,Math.max(...kills.map(k=>(kw-20)*k.height/k.width)))+20})}
     if(ex.avatar||left>0){const cnt=Math.min(ex.avatar?n-1:n,left);rows.push({t:'b',h:Math.max(cnt>0?ch:0,ex.avatar?Math.min(cw,ch,240)*.9:0),from:idx,cnt:cnt});idx+=cnt;left-=cnt}
@@ -1025,20 +1025,24 @@ async function mgDraw(M,sample){
     finish(c,H,P+TH+body+GAP);return cv;
   }
 
-  /* MẪU 2: ảnh Profile làm nền; khung vật phẩm (thông báo hạ) ở trên, khung hiện skin ở dưới */
-  const prof=ex.profile,bw=W,bh=prof?Math.round(W*prof.height/prof.width):1000,H=Math.round(TH+bh+(IB?GAP+IB:0));
-  if(H>8000)throw new Error('Ảnh ghép quá dài.');
+  /* MẪU 2: ảnh Profile làm nền; khung vật phẩm (thông báo hạ) ở trên, khung hiện skin ở dưới; khung che tên nhân vật */
+  const prof=ex.profile,bw=W,bh=prof?Math.round(W*prof.height/prof.width):1000;
+  const rx=mc(N(cf.rx,30),0,95)/100*W,rw=mc(N(cf.rw,69),5,100-N(cf.rx,30))/100*W;
+  const iy=TH+mc(N(cf.iy,3),0,95)/100*bh,ih=mc(N(cf.ih,21),3,60)/100*bh,sy=TH+mc(N(cf.ry,26),0,95)/100*bh;
+  const gx=6,n0=mc(Math.round(N(cf.perRow2,8)),1,20),n=mc(Math.round(n0/sc+1e-6),1,20),cw=(rw-(n-1)*gx)/n,ch=cw/asp,rws=Math.ceil(cards.length/n),need=cards.length?rws*ch+(rws-1)*gy:0;
+  const base=Math.max(TH+bh,Math.round(sy+need+P)),H=Math.round(base+(IB?GAP+IB:0));
+  if(H>8000)throw new Error('Ảnh ghép quá dài. Hãy kéo "Kích thước ảnh skin" nhỏ lại để mỗi hàng chứa nhiều skin hơn.');
   const cv=document.createElement('canvas');cv.width=W;cv.height=H;const c=cv.getContext('2d');
   if(o.bg){bgFill(c,H);if(prof)mgCover(c,prof,0,TH,bw,bh)}
-  const rx=mc(N(cf.rx,30),0,95)/100*W,rw=mc(N(cf.rw,69),5,100-N(cf.rx,30))/100*W;
-  const iy=TH+mc(N(cf.iy,3),0,95)/100*bh,ih=mc(N(cf.ih,21),3,60)/100*bh,sy=TH+mc(N(cf.ry,26),0,95)/100*bh,sh=mc(N(cf.rh,61),5,95)/100*bh;
-  if(kills.length){const kw=(rw-(kills.length-1)*GX*2)/kills.length;kills.forEach((k,i)=>mgContain(c,k,rx+i*(kw+GX*2),iy,kw,ih))}
-  if(cards.length){
-    const n0=mc(Math.round(N(cf.perRow2,8)),1,12),n=mc(Math.round(n0/sc+1e-6),1,12),gx=6;let cw=(rw-(n-1)*gx)/n,ch=cw/asp,g2=gy;const rws=Math.ceil(cards.length/n),need=rws*ch+(rws-1)*g2;
-    if(need>sh){const f=sh/need;cw*=f;ch*=f;g2*=f}
-    cards.forEach((k,i)=>{const rw2=Math.floor(i/n),cnt=Math.min(n,cards.length-rw2*n),rowW=cnt*cw+(cnt-1)*gx;drawCard(c,k,rx+(rw-rowW)/2+(i%n)*(cw+gx),sy+rw2*(ch+g2),cw,ch)});
+  if(o.cover&&o.bg&&prof){
+    const vx=mc(N(cf.covx,5),0,100)/100*W,vy=TH+mc(N(cf.covy,10),0,100)/100*bh,vw=mc(N(cf.covw,25),1,100)/100*W,vh=mc(N(cf.covh,18),1,100)/100*bh,col=cf.coverColor||'#1c2b5e',txt=cf.coverText||(sample?'che tên game':'');
+    if(cf.coverStyle==='mosaic'){const t=document.createElement('canvas');t.width=Math.max(3,Math.round(vw/18));t.height=Math.max(3,Math.round(vh/18));t.getContext('2d').drawImage(cv,vx,vy,vw,vh,0,0,t.width,t.height);c.save();mgRR(c,vx,vy,vw,vh,10);c.clip();c.imageSmoothingEnabled=false;c.drawImage(t,0,0,t.width,t.height,vx,vy,vw,vh);c.restore()}
+    else{c.fillStyle=col;mgRR(c,vx,vy,vw,vh,10);c.fill()}
+    if(txt){c.fillStyle=cf.coverStyle!=='mosaic'&&mgLum(col)>.6?'#111':'#fff';c.textAlign='center';c.font='700 '+Math.round(Math.min(vh*.45,46))+'px '+MF;c.fillText(txt,vx+vw/2,vy+vh*.62,vw-16);c.textAlign='left'}
   }
-  finish(c,H,TH+bh+GAP);return cv;
+  if(kills.length){const kw=(rw-(kills.length-1)*GX*2)/kills.length;kills.forEach((k,i)=>mgContain(c,k,rx+i*(kw+GX*2),iy,kw,ih))}
+  cards.forEach((k,i)=>{const rw2=Math.floor(i/n),cnt=Math.min(n,cards.length-rw2*n),rowW=cnt*cw+(cnt-1)*gx;drawCard(c,k,rx+(rw-rowW)/2+(i%n)*(cw+gx),sy+rw2*(ch+gy),cw,ch)});
+  finish(c,H,base+GAP);return cv;
 }
 
 /* các bước */
@@ -1052,7 +1056,7 @@ function mgPreset(k){
 }
 function mgStep1(){
   const M=S.m;
-  return `<div class="box mg"><label class="mgdrop" for="mFiles">${svg('plus')}<b>Chọn ảnh cần ghép</b><small>Chọn tối đa 9 ảnh mỗi lần · tổng tối đa 18 ảnh</small></label><input id="mFiles" type="file" accept="image/*" multiple hidden>
+  return `<div class="box mg"><label class="mgdrop" for="mFiles">${svg('plus')}<b>Chọn ảnh cần ghép</b><small>Chọn nhiều ảnh cùng lúc, thêm bao nhiêu skin cũng được (tối đa 100 ảnh)</small></label><input id="mFiles" type="file" accept="image/*" multiple hidden>
   ${M.items.length?`<div class="thumbs">${M.items.map((it,i)=>`<div class="thumb"><img src="${it.th}" alt=""><span class="no">${i+1}</span><button class="rm" data-m="del" data-i="${i}" aria-label="Xóa ảnh">${svg('x')}</button><div class="mv"><button data-m="mv" data-i="${i}" data-v="-1">‹</button><button data-m="mv" data-i="${i}" data-v="1">›</button></div></div>`).join('')}</div>`:''}
   <div class="mgfoot"><span style="color:var(--mu)">${M.items.length} ảnh</span><span style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-ol" data-m="skipcrop" ${M.items.length?'':'disabled'}>Bỏ qua cắt ›</button><button class="btn btn-gd" data-m="next" ${M.items.length?'':'disabled'}>Tiếp tục: cắt ảnh ›</button></span></div></div>`;
 }
@@ -1072,16 +1076,17 @@ function mgStep3(){
   const inp=(k,l,ph,t)=>`<div class="fg"><label class="lb">${l}</label><input class="inp" data-k="${k}" ${t?`type="${t}" inputmode="numeric"`:''} value="${esc(c[k])}" placeholder="${ph||''}"></div>`;
   const up=(k,l,multi)=>{const arr=multi?ex[k]:(ex[k]?[ex[k]]:[]);return `<div class="fg"><label class="lb">${l}</label>${arr.length?`<div class="mgex">${arr.map((x,i)=>`<span class="mgxi"><img src="${mgUrl(x,120)}" alt=""><button class="btn btn-ol sm" data-m="crop" data-key="${k}" data-i="${i}">✂️ Cắt</button></span>`).join('')}<button class="btn btn-ol sm" data-m="rmx" data-v="${k}">Xóa</button></div>`:''}<input class="inp" type="file" accept="image/*" data-x="${k}" ${multi?'multiple':''}></div>`};
   const sw=(k,l,d)=>`<div class="opt"><div><b>${l}</b><small>${d}</small></div><label class="sw"><input type="checkbox" data-o="${k}" ${o[k]?'checked':''}><i></i></label></div>`;
+  const coverBlk=`<div class="opt" style="flex-direction:column;align-items:stretch"><b style="font-size:14px">Khung che tên</b><div class="mgmode" style="margin-top:8px"><button class="btn ${c.coverStyle==='mosaic'?'btn-ol':'btn-gd'}" data-m="cvs" data-v="solid">Màu đặc</button><button class="btn ${c.coverStyle==='mosaic'?'btn-gd':'btn-ol'}" data-m="cvs" data-v="mosaic">Làm mờ</button></div><div class="mgcolrow" style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">${c.coverStyle==='mosaic'?'':`<label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--mu)">Màu che<input type="color" data-k="coverColor" value="${esc(c.coverColor)}" style="width:46px;height:36px;padding:0;margin:0"></label>`}</div>${inp('coverText','Chữ trên khung che (tùy chọn)','VD: Acc Liên Quân')}<button class="btn btn-gd btn-block" data-m="covadj">🎯 Kéo để chỉnh vị trí che</button><p class="mgtip" style="margin:8px 0 0">Cần tải ảnh Profile ở phần nâng cao. Hoặc nhập số: trái, trên, rộng, cao (%) trong mục chỉnh vị trí khung bên trên.</p></div>`;
   const PRE=[['Xanh','#26378a','#131a4a'],['Đen','#2a2a30','#000000'],['Tím','#4b2a8f','#1d1040'],['Đỏ','#9b1c2e','#3a0a12'],['Xanh lá','#136b45','#07311f'],['Cam','#c2701a','#5a2f06'],['Trắng','#ffffff','#e5e9f5']];
   const colors=o.bg?`<div class="mgcol"><label>Màu nền<input type="color" data-k="bg1" value="${esc(c.bg1)}"></label><label>Màu thứ hai<input type="color" data-k="bg2" value="${esc(c.bg2)}"></label></div><div class="mgsw">${PRE.map(p=>`<button type="button" class="swatch" data-m="bgp" data-v="${p[1]},${p[2]}" style="background:linear-gradient(135deg,${p[1]},${p[2]})" title="${p[0]}" aria-label="Màu ${p[0]}"></button>`).join('')}</div><p class="mgtip" style="margin-top:-4px">Chọn 2 màu giống nhau để có nền một màu, khác nhau để nền chuyển sắc.</p>`:'';
   return `<div class="box mg"><h3>${svg('star')}Cấu hình ghép</h3>
   <div class="mgmode"><button class="btn ${t2?'btn-ol':'btn-gd'}" data-m="tpl" data-v="1">Mẫu ảnh 1</button><button class="btn ${t2?'btn-gd':'btn-ol'}" data-m="tpl" data-v="2">Mẫu ảnh 2</button><button class="btn btn-ol" data-m="sample">🖼 Xem mẫu</button></div>
   <p class="mgtip">${t2?'Mẫu 2: ảnh <b>Profile</b> (tải ở phần nâng cao) làm nền. Thông báo hạ nằm ở khung vật phẩm phía trên, các skin nằm ở khung hiện skin bên dưới.':'Mẫu 1: hàng thông báo hạ → avatar + skin → khung số tướng/số skin + ảnh tỉ lệ thắng + 3 skin → các hàng skin.'}</p>
   <div class="fgrid">${inp(t2?'perRow2':'perRow1','Số ảnh trên 1 hàng',t2?'8':'7','number')}${inp('rowGap','Độ rộng giữa 2 hàng (px)','36','number')}${inp('heroes','Tướng sở hữu','VD: 112')}${inp('skins','Skin sở hữu','VD: 354')}</div>
-  <div class="fg"><label class="lb">Kích thước ảnh skin: <b id="scv" style="color:var(--gd)">${c[sk]}%</b></label><input type="range" min="40" max="300" step="10" data-k="${sk}" value="${c[sk]}"><small style="color:var(--mu)">Kéo sang phải để ảnh skin to hơn (ví dụ chỉ có 1-2 skin thì kéo lên 250-300% cho dễ nhìn).</small></div>
-  ${t2?`<details class="mgdet"><summary>Chỉnh vị trí khung trên ảnh Profile</summary><div class="fgrid">${inp('rx','Khung cách trái (%)','30','number')}${inp('rw','Khung rộng (%)','69','number')}${inp('iy','Khung vật phẩm: cách trên (%)','3','number')}${inp('ih','Khung vật phẩm: cao (%)','21','number')}${inp('ry','Khung skin: cách trên (%)','26','number')}${inp('rh','Khung skin: cao (%)','61','number')}</div></details>`:''}
+  <div class="fg"><label class="lb">Kích thước ảnh skin: <b id="scv" style="color:var(--gd)">${c[sk]}%</b></label><input type="range" min="30" max="300" step="10" data-k="${sk}" value="${c[sk]}"><small style="color:var(--mu)">Kéo sang phải để ảnh skin to hơn (ít skin thì kéo lên 250-300% cho dễ nhìn). Nhiều skin thì kéo nhỏ lại để mỗi hàng chứa được nhiều skin hơn. Skin tự xuống hàng và ảnh ghép tự dài ra khi cần.</small></div>
+  ${t2?`<details class="mgdet"><summary>Chỉnh vị trí khung trên ảnh Profile</summary><div class="fgrid">${inp('rx','Khung cách trái (%)','30','number')}${inp('rw','Khung rộng (%)','69','number')}${inp('iy','Khung vật phẩm: cách trên (%)','3','number')}${inp('ih','Khung vật phẩm: cao (%)','21','number')}${inp('ry','Khung skin: cách trên (%)','26','number')}${inp('rh','Khung skin: cao (%)','61','number')}${inp('covx','Khung che: cách trái (%)','5','number')}${inp('covy','Khung che: cách trên (%)','10','number')}${inp('covw','Khung che: rộng (%)','25','number')}${inp('covh','Khung che: cao (%)','18','number')}</div></details>`:''}
   <div class="mgoptH"><h4 class="mgh">Tùy chọn hiển thị</h4><button class="btn btn-ol sm" data-m="optt">${M.optOpen?'Thu gọn ▲':'Mở rộng ▼'}</button></div>
-  ${M.optOpen?sw('bg','Hiển thị màu nền','Bật/tắt lớp nền màu phía sau ảnh đã được ghép')+colors+sw('stats','Thống kê tướng/skin','Hiển thị tổng số lượng tướng và trang phục mà bạn sở hữu (Mẫu 1)')+sw('border','Hiển thị viền ảnh','Hiển thị đường viền màu gradient vàng trắng bao quanh ảnh ghép')+sw('title','Hiển thị tiêu đề','Thêm tiêu đề tùy chỉnh ở phía trên bức ảnh')+(o.title?inp('title','Tiêu đề','TÀI KHOẢN LIÊN QUÂN'):''):''}
+  ${M.optOpen?sw('bg','Hiển thị màu nền','Bật/tắt lớp nền màu phía sau ảnh đã được ghép')+colors+sw('stats','Thống kê tướng/skin','Hiển thị tổng số lượng tướng và trang phục mà bạn sở hữu (Mẫu 1)')+(t2?sw('cover','Che tên nhân vật game (Mẫu 2)','Đặt khung che đè lên tên nhân vật trên ảnh Profile')+(o.cover?coverBlk:''):'')+sw('border','Hiển thị viền ảnh','Hiển thị đường viền màu gradient vàng trắng bao quanh ảnh ghép')+sw('title','Hiển thị tiêu đề','Thêm tiêu đề tùy chỉnh ở phía trên bức ảnh')+(o.title?inp('title','Tiêu đề','TÀI KHOẢN LIÊN QUÂN'):''):''}
   <button class="btn btn-ol btn-block" data-m="adv">${M.adv?'Thu gọn ▲':'+ Thêm nút bấm, top tướng, bậc EVO ▼'}</button>
   ${M.adv?`<h4 class="mgh">Các tính năng nâng cao (không bắt buộc)</h4><p class="mgtip">Ảnh nào tải lên cũng bấm <b>✂️ Cắt</b> được nếu cần. Không bấm là dùng nguyên ảnh.</p>${up('win','Ảnh tỉ lệ thắng (Mẫu 1)')}${up('power','Ảnh lực chiến và top tướng (Mẫu 1)')}<div class="fgrid">${inp('giayTS','Số Giấy Tuyệt Sắc','0')}${inp('theDoiTen','Thẻ đổi tên','0')}${inp('giayS','Số Giấy S','0')}${inp('maAcc','Mã số ACC','Nhập mã số ACC...')}</div>${up('avatar','Avatar (Mẫu 1)')}${up('profile','Profile (làm nền Mẫu 2)')}${up('kills','Thông báo hạ (tối đa 3 ảnh)',true)}`:''}
   <div class="mgfoot"><button class="btn btn-ol" data-m="back">‹ Quay lại</button><button class="btn btn-gd" data-m="next">Ghép ảnh ›</button></div></div>`;
@@ -1104,10 +1109,12 @@ async function mgBuild(){
 }
 async function mgAdd(fl){
   const M=S.m;let a=[...fl].filter(f=>f.type.startsWith('image/'));
-  if(a.length>9){toast('Chỉ lấy 9 ảnh mỗi lần chọn');a=a.slice(0,9)}
-  const room=18-M.items.length;if(a.length>room){toast('Tối đa 18 ảnh');a=a.slice(0,Math.max(0,room))}
-  if(!a.length)return;toast('Đang xử lý ảnh…');
-  for(const f of a){try{const cv=await mgLoad(f);M.items.push({cv:cv,view:mgUrl(cv,900),th:mgUrl(cv,200),crop:{x:0,y:0,w:1,h:1}})}catch(e){toast(e.message,'var(--rd)')}}
+  const room=100-M.items.length;if(a.length>room){toast('Tối đa 100 ảnh');a=a.slice(0,Math.max(0,room))}
+  if(!a.length)return;
+  for(let i=0;i<a.length;i++){
+    if(i%4===0)toast('Đang xử lý ảnh '+(i+1)+'/'+a.length+'…');
+    try{const cv=await mgLoad(a[i],1100);M.items.push({cv:cv,view:mgUrl(cv,900),th:mgUrl(cv,200),crop:{x:0,y:0,w:1,h:1}})}catch(e){toast(e.message,'var(--rd)')}
+  }
   renderMerge();
 }
 async function mgEx(k,fl){
@@ -1141,6 +1148,8 @@ document.addEventListener('click',e=>{
   else if(a==='optt')M.optOpen=!M.optOpen;
   else if(a==='crop')return mgOpenCrop(b.dataset.key,Number(b.dataset.i)||0);
   else if(a==='skipcrop'){if(!M.items.length)return;M.mode='each';M.items.forEach(it=>{it.crop={x:0,y:0,w:1,h:1}});M.step=3}
+  else if(a==='cvs')M.cfg.coverStyle=v;
+  else if(a==='covadj')return mgOpenCover();
   else if(a==='bgp'){const p=v.split(',');M.cfg.bg1=p[0];M.cfg.bg2=p[1]}
   else if(a==='tpl')M.cfg.tpl=Number(v);
   else if(a==='rmx'){if(v==='kills')M.ex.kills=[];else delete M.ex[v]}
@@ -1153,13 +1162,24 @@ document.addEventListener('click',e=>{
 document.addEventListener('change',e=>{const t=e.target;if(t.id==='mFiles'){mgAdd(t.files);t.value=''}else if(t.dataset&&t.dataset.x){mgEx(t.dataset.x,t.files);t.value=''}else if(t.dataset&&t.dataset.o&&S.m){S.m.opt[t.dataset.o]=t.checked;if(t.dataset.o==='title')renderMerge()}});
 document.addEventListener('input',e=>{const k=e.target.dataset&&e.target.dataset.k;if(k&&S.m){S.m.cfg[k]=e.target.value;if(k.indexOf('scale')===0){const sv=$('#scv');if(sv)sv.textContent=e.target.value+'%'}}});
 
+function mgOpenCover(){
+  const M=S.m,prof=M.ex.profile,c=M.cfg;
+  if(!prof)return toast('Hãy tải ảnh Profile ở phần nâng cao trước','var(--rd)');
+  S.mc={key:'cover',r:{x:(Number(c.covx)||0)/100,y:(Number(c.covy)||0)/100,w:(Number(c.covw)||25)/100,h:(Number(c.covh)||18)/100}};
+  openModal(`<h2 style="margin:0 0 6px">Chỉnh vị trí che tên</h2><p class="mgtip">Kéo khung vàng đè lên tên nhân vật, kéo 4 góc để đổi kích thước.</p><div class="cropbox"><img src="${mgUrl(prof,900)}" alt="" draggable="false"><div class="crop" data-sc="cover" style="${mgStyle(S.mc.r)}"><i class="h tl" data-h="tl"></i><i class="h tr" data-h="tr"></i><i class="h bl" data-h="bl"></i><i class="h br" data-h="br"></i></div></div><div class="mgacts"><button class="btn btn-gd" data-mcv="ok">Xong</button><button class="btn btn-ol" data-mcv="cancel">Hủy</button></div>`);
+}
+document.addEventListener('click',e=>{
+  const b=e.target.closest('[data-mcv]');if(!b||!S.mc||S.mc.key!=='cover')return;
+  if(b.dataset.mcv==='ok'){const r=S.mc.r,c=S.m.cfg,p=v=>Math.round(v*1000)/10;c.covx=p(r.x);c.covy=p(r.y);c.covw=p(r.w);c.covh=p(r.h)}
+  S.mc=null;closeModal();renderMerge();
+});
 /* kéo / thay đổi vùng cắt */
 let mgDrag=null;
 document.addEventListener('pointerdown',e=>{
   const cr=e.target.closest('.crop');if(!cr||!S.m)return;
   const sc=cr.dataset.sc||'main';if(sc==='main'&&S.view!=='merge')return;
   const h=e.target.closest('[data-h]'),bx=cr.parentElement.getBoundingClientRect();
-  mgDrag={sc:sc,el:cr,m:h?h.dataset.h:'mv',x:e.clientX,y:e.clientY,r:{...(sc==='modal'?S.mc.r:mgRect())},w:bx.width,h:bx.height};e.preventDefault();
+  mgDrag={sc:sc,el:cr,m:h?h.dataset.h:'mv',x:e.clientX,y:e.clientY,r:{...((sc==='modal'||sc==='cover')?S.mc.r:mgRect())},w:bx.width,h:bx.height};e.preventDefault();
 });
 window.addEventListener('pointermove',e=>{
   if(!mgDrag)return;
@@ -1167,7 +1187,7 @@ window.addEventListener('pointermove',e=>{
   if(m==='mv'){x=mc(x+dx,0,1-w);y=mc(y+dy,0,1-h)}
   else{if(m.includes('l'))x=mc(x+dx,0,x2-mn);if(m.includes('r'))x2=mc(x2+dx,x+mn,1);if(m.includes('t'))y=mc(y+dy,0,y2-mn);if(m.includes('b'))y2=mc(y2+dy,y+mn,1);w=x2-x;h=y2-y}
   const r={x:x,y:y,w:w,h:h};
-  if(mgDrag.sc==='modal')S.mc.r=r;else{const M=S.m;if(M.mode==='sync')M.sync=r;else M.items[M.cur].crop=r}
+  if(mgDrag.sc==='modal'||mgDrag.sc==='cover')S.mc.r=r;else{const M=S.m;if(M.mode==='sync')M.sync=r;else M.items[M.cur].crop=r}
   mgDrag.el.style.cssText=mgStyle(r);
 });
 window.addEventListener('pointerup',()=>{mgDrag=null});
