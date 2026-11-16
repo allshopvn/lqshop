@@ -326,6 +326,9 @@ input[type=range]{accent-color:var(--gd);width:100%;margin:6px 0 4px}
 .notif .ni small{display:block;color:var(--mu);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .notif .nf{padding:10px 14px;display:flex;gap:8px;flex-wrap:wrap}
 @media(max-width:600px){.notif{right:12px}}
+.inp,textarea.inp,select.inp,input.inp[type=file]{color:#fff}
+.inp::placeholder,textarea.inp::placeholder{color:#7f89a8}
+select.inp option{color:#fff;background:#0f1424}
 </style>
 </head>
 <body>
@@ -456,7 +459,7 @@ input[type=range]{accent-color:var(--gd);width:100%;margin:6px 0 4px}
   <section class="view" id="v-history">
     <div class="page-h"><h1>Lịch sử giao dịch</h1><p>Theo dõi tài khoản đã mua, nạp tiền và vòng quay</p></div>
     <div class="tabs" role="tablist" id="hTabs">
-      <button class="on" data-t="buy">Acc đã mua</button><button data-t="topup">Nạp tiền</button><button data-t="sale">Tiền bán acc</button><button data-t="spin">Vòng quay</button>
+      <button class="on" data-t="buy">Acc đã mua</button><button data-t="topup">Nạp tiền</button><button data-t="sale">Bán acc &amp; phí</button><button data-t="spin">Vòng quay</button>
     </div>
     <div class="tbl-w"><table class="tbl" id="hTbl"></table></div>
   </section>
@@ -532,6 +535,7 @@ input[type=range]{accent-color:var(--gd);width:100%;margin:6px 0 4px}
   <!-- MERGE -->
   <section class="view" id="v-merge">
     <div class="page-h"><h1>Ghép ảnh acc</h1><p>Tải ảnh chụp acc, cắt và ghép thành một ảnh đẹp để đăng bán</p></div>
+    <div class="feeb" id="mFeeInfo"></div>
     <div class="steps" id="mSteps"></div>
     <div id="mBody"></div>
   </section>
@@ -608,7 +612,7 @@ const SB_URL="https://dnjtfyviroswhyiipgwb.supabase.co",SB_KEY="sb_publishable_h
 const sb=window.supabase?window.supabase.createClient(SB_URL,SB_KEY):null;
 const RANKS=['Kim Cương','Tinh Anh','Cao Thủ','Chiến Tướng','Thách Đấu'],CATS=['VIP','Random','Trắng TT','Giá rẻ'],GAME='Liên Quân Mobile';
 const DEF_CATS=[{id:'d1',name:'VIP',description:'Full skin SSS, rank Thách Đấu',image_url:'acc1.jpg'},{id:'d2',name:'Random',description:'Thử vận may chỉ từ 20K',image_url:'acc2.jpg'},{id:'d3',name:'Trắng TT',description:'Đổi được SĐT, email',image_url:'acc3.jpg'},{id:'d4',name:'Giá rẻ',description:'Dưới 200K, nhiều tướng',image_url:'acc4.jpg'}],DEF_RANKS=RANKS.map((n,i)=>({id:'r'+i,name:n}));
-const S={wds:[],wdOk:false,fee:null,m:null,pendingImg:null,pendingFill:null,dirty:false,cats:DEF_CATS,ranks:DEF_RANKS,catsOk:false,catEdit:null,me:null,members:null,accs:[],sec:{},buys:[],txns:[],cards:[],users:[],bank:{},cat:'',amt:50000,view:'home',hTab:'buy',aTab:'acc',edit:null,loaded:false};
+const S={mergeFee:null,wds:[],wdOk:false,fee:null,m:null,pendingImg:null,pendingFill:null,dirty:false,cats:DEF_CATS,ranks:DEF_RANKS,catsOk:false,catEdit:null,me:null,members:null,accs:[],sec:{},buys:[],txns:[],cards:[],users:[],bank:{},cat:'',amt:50000,view:'home',hTab:'buy',aTab:'acc',edit:null,loaded:false};
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const chk=r=>{if(r.error)throw r.error;return r.data};
 const isA=()=>!!S.me&&S.me.role==='admin';
@@ -631,8 +635,8 @@ async function refresh(soft){
   if(!sb){S.loaded=true;renderAll();return}
   try{
     const s=(await sb.auth.getSession()).data.session,uid=s&&s.user.id;
-    const [ra,rb,rc,rcat,rrk]=await Promise.all([sb.from('accounts').select('*').order('created_at',{ascending:false}),sb.from('settings').select('key,value').in('key',['bank','fee']),sb.rpc('member_count'),sb.from('categories').select('*').order('sort').order('created_at'),sb.from('ranks').select('*').order('sort').order('created_at')]);
-    S.catsOk=!rcat.error&&!rrk.error;S.cats=rcat.error?DEF_CATS:(rcat.data||[]);S.ranks=rrk.error?DEF_RANKS:(rrk.data||[]);S.accs=ra.data||[];{const st={};(rb.data||[]).forEach(x=>st[x.key]=x.value);S.bank=st.bank||{};S.fee=st.fee&&st.fee.percent!=null?Number(st.fee.percent):null}S.members=rc.error||rc.data==null?null:Number(rc.data);S.me=null;S.sec={};S.buys=[];S.txns=[];S.cards=[];S.users=[];S.wds=[];
+    const [ra,rb,rc,rcat,rrk]=await Promise.all([sb.from('accounts').select('*').order('created_at',{ascending:false}),sb.from('settings').select('key,value').in('key',['bank','fee','merge_fee']),sb.rpc('member_count'),sb.from('categories').select('*').order('sort').order('created_at'),sb.from('ranks').select('*').order('sort').order('created_at')]);
+    S.catsOk=!rcat.error&&!rrk.error;S.cats=rcat.error?DEF_CATS:(rcat.data||[]);S.ranks=rrk.error?DEF_RANKS:(rrk.data||[]);S.accs=ra.data||[];{const st={};(rb.data||[]).forEach(x=>st[x.key]=x.value);S.bank=st.bank||{};S.fee=st.fee&&st.fee.percent!=null?Number(st.fee.percent):null;S.mergeFee=st.merge_fee&&st.merge_fee.amount!=null?Number(st.merge_fee.amount):null}S.members=rc.error||rc.data==null?null:Number(rc.data);S.me=null;S.sec={};S.buys=[];S.txns=[];S.cards=[];S.users=[];S.wds=[];
     if(uid){
       const q=await Promise.all([
         sb.from('profiles').select('*').eq('id',uid).maybeSingle(),
@@ -843,7 +847,7 @@ function renderHist(){
   const T=$('#hTbl'),A=isA(),t=S.hTab;
   const empty=(m,n=6)=>`<tr><td colspan="${n}" style="text-align:center;padding:40px;color:var(--mu)">${m}</td></tr>`;
   if(t==='buy')T.innerHTML=`<thead><tr><th>Mã acc</th>${A?'<th>Người mua</th>':''}<th>Tên</th><th>Thông tin đăng nhập</th><th>Giá</th><th>Thời gian</th></tr></thead><tbody>${S.buys.length?S.buys.map(h=>{const s=S.sec[h.account_id]!==undefined?S.sec[h.account_id]:h.secret;return `<tr><td><b>#${acode(h.account_id)}</b></td>${A?`<td>${esc(h.username)}</td>`:''}<td>${esc(h.account_title)}</td><td class="mono" style="white-space:pre-wrap;min-width:180px">${s==null?'-':esc(s)+' '+cp(s)}</td><td style="color:var(--gd);font-weight:700">${vnd(h.price)}</td><td style="color:var(--mu)">${dtf(h.created_at)}</td></tr>`}).join(''):empty('Bạn chưa mua tài khoản nào. <span class="lnk" data-go="home">Mua ngay</span>')}</tbody>`;
-  if(t==='sale'){const L=S.txns.filter(x=>x.type==='sale'||x.type==='fee');T.innerHTML=`<thead><tr><th>Thời gian</th>${A?'<th>Tài khoản</th>':''}<th>Loại</th><th>Nội dung</th><th>Số tiền</th></tr></thead><tbody>${L.length?L.map(x=>`<tr><td style="color:var(--mu)">${dtf(x.created_at)}</td>${A?`<td>${esc(x.username)}</td>`:''}<td>${x.type==='fee'?'Phí bán acc':'Tiền bán acc'}</td><td style="white-space:normal;min-width:180px">${esc(x.note)}</td><td style="color:var(--ok);font-weight:700">+${vnd(x.amount)}</td></tr>`).join(''):empty('Chưa có tiền bán acc nào',A?5:4)}</tbody>`}
+  if(t==='sale'){const L=S.txns.filter(x=>x.type==='sale'||x.type==='fee'||x.type==='merge');T.innerHTML=`<thead><tr><th>Thời gian</th>${A?'<th>Tài khoản</th>':''}<th>Loại</th><th>Nội dung</th><th>Số tiền</th></tr></thead><tbody>${L.length?L.map(x=>`<tr><td style="color:var(--mu)">${dtf(x.created_at)}</td>${A?`<td>${esc(x.username)}</td>`:''}<td>${x.type==='fee'?'Phí thu về':x.type==='merge'?'Phí ghép ảnh':'Tiền bán acc'}</td><td style="white-space:normal;min-width:180px">${esc(x.note)}</td><td style="color:var(${x.amount<0?'--rd':'--ok'});font-weight:700">${x.amount>0?'+':''}${vnd(x.amount)}</td></tr>`).join(''):empty('Chưa có tiền bán acc nào',A?5:4)}</tbody>`}
   if(t==='topup'){
     const L=[...S.txns.filter(x=>x.type==='bank'||x.type==='card').map(x=>({code:x.id.slice(0,7).toUpperCase(),user:x.username,type:x.type==='card'?'Thẻ cào':'Chuyển khoản',amt:x.amount,st:'ok',time:x.created_at})),
       ...S.cards.filter(c=>c.status!=='approved').map(c=>({code:c.id.slice(0,7).toUpperCase(),user:c.username,type:'Thẻ '+c.telco,amt:c.amount,st:c.status==='rejected'?'er':'wt',time:c.created_at}))].sort((a,b)=>new Date(b.time)-new Date(a.time));
@@ -959,14 +963,14 @@ async function saveCat(btn){
 }
 function renderAdmin(){
   if(!isA())return;S.dirty=false;
-  const T=[['acc',S.edit?'Sửa acc':'Đăng acc'],['list','Quản lý acc'],['pend','Duyệt acc'],['nap','Cộng tiền'],['card','Duyệt thẻ'],['wd','Rút tiền'],['users','Người dùng'],['cats','Danh mục & Rank'],['fee','Phí bán acc'],['qr','Cài QR']],pend=S.cards.filter(c=>c.status==='pending'),pendA=S.accs.filter(a=>a.approval==='pending'),pendW=S.wds.filter(w=>w.status==='pending'),t=S.aTab;
+  const T=[['acc',S.edit?'Sửa acc':'Đăng acc'],['list','Quản lý acc'],['pend','Duyệt acc'],['nap','Cộng tiền'],['card','Duyệt thẻ'],['wd','Rút tiền'],['users','Người dùng'],['cats','Danh mục & Rank'],['fee','Phí'],['qr','Cài QR']],pend=S.cards.filter(c=>c.status==='pending'),pendA=S.accs.filter(a=>a.approval==='pending'),pendW=S.wds.filter(w=>w.status==='pending'),t=S.aTab;
   $('#aTabs').innerHTML=T.map(([k,l])=>`<button class="${t===k?'on':''}" data-at="${k}">${l}${k==='card'&&pend.length?`<i class="nb">${pend.length}</i>`:''}${k==='wd'&&pendW.length?`<i class="nb">${pendW.length}</i>`:''}${k==='pend'&&pendA.length?`<i class="nb">${pendA.length}</i>`:''}</button>`).join('');
   const B=$('#aBody');
   if(t==='acc'){B.innerHTML=accForm();pvDisc();applyPending()}
   if(t==='list')B.innerHTML=`<div class="tbl-w"><table class="tbl"><thead><tr><th>Mã</th><th>Tiêu đề</th><th>Người đăng</th><th>Giá</th><th>Duyệt</th><th>Trạng thái</th><th></th></tr></thead><tbody>${S.accs.length?S.accs.map(a=>`<tr><td><b>#${acode(a.id)}</b></td><td style="white-space:normal;min-width:180px">${esc(a.title)}</td><td>${esc(a.seller_name||'-')}</td><td style="color:var(--gd);font-weight:700">${vnd(a.price)}</td><td>${apBadge(a)}</td><td><span class="st-b ${a.status==='sold'?'st-er':'st-ok'}">${a.status==='sold'?'Đã bán':'Còn'}</span></td><td><button class="btn btn-ol sm" data-act="edit" data-id="${a.id}">${svg('edit')}Sửa</button> <button class="btn btn-ol sm" style="color:var(--rd)" data-act="del" data-id="${a.id}">${svg('trash')}Xóa</button></td></tr>`).join(''):'<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--mu)">Chưa có acc nào</td></tr>'}</tbody></table></div>`;
   if(t==='pend')B.innerHTML=pendA.length?pendA.map(reviewCard).join(''):'<div class="empty">Không có acc nào đang chờ duyệt.</div>';
   if(t==='cats')B.innerHTML=catsAdmin();
-  if(t==='fee'){const got=S.txns.filter(x=>x.type==='fee').reduce((a,x)=>a+x.amount,0);B.innerHTML=`<div class="box" style="max-width:460px"><h3>${svg('wallet')}Phí bán acc của người dùng</h3><div class="fg"><label class="lb">Phí (%) trừ vào tiền người dùng khi bán được acc</label><input class="inp" id="fee_p" inputmode="decimal" value="${S.fee==null?'':S.fee}" placeholder="VD: 5"></div><p class="mgtip">Ví dụ: acc 50.000đ, phí 5% → người bán nhận 47.500đ, ${vnd(2500)} phí cộng vào tài khoản admin.</p><div class="tagi">Số dư tài khoản admin: ${vnd(S.me.balance)} · Phí đã thu: ${vnd(got)}</div>${S.fee==null?'<p class="mgtip" style="color:var(--rd)">Chưa có cài đặt phí trong Supabase. Hãy chạy file supabase-update-4.sql trước.</p>':''}<button class="btn btn-gd btn-block" data-act="feesave">Lưu phí</button></div>`}
+  if(t==='fee'){const got=S.txns.filter(x=>x.type==='fee').reduce((a,x)=>a+x.amount,0);B.innerHTML=`<div class="box" style="max-width:460px"><h3>${svg('wallet')}Phí bán acc của người dùng</h3><div class="fg"><label class="lb">Phí (%) trừ vào tiền người dùng khi bán được acc</label><input class="inp" id="fee_p" inputmode="decimal" value="${S.fee==null?'':S.fee}" placeholder="VD: 5"></div><p class="mgtip">Ví dụ: acc 50.000đ, phí 5% → người bán nhận 47.500đ, ${vnd(2500)} phí cộng vào tài khoản admin.</p><div class="tagi">Số dư tài khoản admin: ${vnd(S.me.balance)} · Phí đã thu: ${vnd(got)}</div>${S.fee==null?'<p class="mgtip" style="color:var(--rd)">Chưa có cài đặt phí trong Supabase. Hãy chạy file supabase-update-4.sql trước.</p>':''}<button class="btn btn-gd btn-block" data-act="feesave">Lưu phí</button></div><div class="box" style="max-width:460px;margin-top:14px"><h3>${svg('star')}Phí ghép ảnh</h3><div class="fg"><label class="lb">Phí mỗi ảnh (đ) trừ vào tiền người dùng khi ghép ảnh</label><input class="inp money" id="mfee_a" inputmode="numeric" value="${S.mergeFee==null?'':Number(S.mergeFee).toLocaleString('vi-VN')}" placeholder="VD: 200"></div><p class="mgtip">Ví dụ: 1 ảnh 200đ, ghép 6 ảnh → người dùng bị trừ 1.200đ, số tiền cộng vào tài khoản admin. Admin ghép ảnh miễn phí. Nhập 0 để miễn phí cho tất cả.</p>${S.mergeFee==null?'<p class="mgtip" style="color:var(--rd)">Chưa có cài đặt phí ghép ảnh trong Supabase. Hãy chạy file supabase-update-6.sql trước.</p>':''}<button class="btn btn-gd btn-block" data-act="mfeesave">Lưu phí ghép ảnh</button></div>`}
   if(t==='wd'){
     if(!S.wdOk)B.innerHTML='<div class="note"><i data-ic="info"></i><span>Chưa có bảng rút tiền trong Supabase. Hãy chạy file <b>supabase-update-5.sql</b> rồi tải lại trang.</span></div>';
     else{
@@ -1027,6 +1031,8 @@ const actHandler=async e=>{
     if(act==='save')return saveAcc(b);
     if(act==='cancel'){S.edit=null;return S.view==='sell'?renderSell():renderAdmin()}
     if(act==='edit'){S.edit=id;S.aTab='acc';if(S.view==='sell')renderSell();else renderAdmin();return window.scrollTo({top:0,behavior:'smooth'})}
+    if(act==='mfeesave'){if($('#mfee_a').value.trim()==='')return toast('Nhập phí mỗi ảnh (đ), nhập 0 nếu miễn phí','var(--rd)');const v=Number(String($('#mfee_a').value).replace(/\D/g,''));
+      chk(await sb.from('settings').upsert({key:'merge_fee',value:{amount:v},updated_at:new Date().toISOString()}));await refresh();toast('Đã lưu phí ghép ảnh '+vnd(v)+' mỗi ảnh','var(--ok)');return}
     if(act==='feesave'){const v=Number(String($('#fee_p').value).replace(',','.'));if($('#fee_p').value.trim()===''||isNaN(v)||v<0||v>100)return toast('Nhập phí từ 0 đến 100 (%)','var(--rd)');
       chk(await sb.from('settings').upsert({key:'fee',value:{percent:Math.round(v*100)/100},updated_at:new Date().toISOString()}));await refresh();toast('Đã lưu phí '+S.fee+'%','var(--ok)');return}
     if(act==='wdok'){const w=S.wds.find(x=>x.id===id);if(!w)return;if(!confirm('Xác nhận bạn ĐÃ chuyển '+vnd(w.amount)+' cho '+w.account_name+' ('+w.bank_name+' '+w.account_number+')?'))return;
@@ -1198,6 +1204,17 @@ function mgStep2(){
   <button class="btn btn-ol btn-block" data-m="skipcrop" style="margin-top:8px">Bỏ qua cắt: dùng nguyên tất cả ảnh ›</button>
   <div class="mgfoot"><button class="btn btn-ol" data-m="back">‹ Quay lại</button><button class="btn btn-gd" data-m="next">Tiếp tục: cấu hình ›</button></div></div>`;
 }
+const mgCount=()=>{const M=S.m,e=M.ex||{};return M.items.length+(e.win?1:0)+(e.power?1:0)+(e.avatar?1:0)+(e.profile?1:0)+(e.kills?e.kills.length:0)};
+const mgCostTxt=()=>{if(isA()||!S.mergeFee)return '';const x=Math.max(0,mgCount()-(S.m.paid||0));return x?' (−'+vnd(x*S.mergeFee)+')':''};
+async function mgPay(){
+  const M=S.m;if(isA()||!S.mergeFee)return true;
+  const n=mgCount(),x=n-(M.paid||0);if(x<=0)return true;
+  const cost=x*S.mergeFee;
+  if(!S.me||S.me.balance<cost){toast('Số dư không đủ: cần '+vnd(cost)+' để ghép '+x+' ảnh. Hãy nạp thêm tiền.','var(--rd)');return false}
+  if(!confirm('Ghép '+x+' ảnh sẽ tốn '+vnd(cost)+' ('+vnd(S.mergeFee)+' mỗi ảnh), trừ vào số dư của bạn. Tiếp tục?'))return false;
+  try{chk(await sb.rpc('charge_merge',{p_count:x}));M.paid=n;await refresh();toast('Đã trừ '+vnd(cost)+' phí ghép ảnh','var(--ok)');return true}
+  catch(e){toast(viErr(e.message||String(e)),'var(--rd)');return false}
+}
 function mgStep3(){
   const M=S.m,c=M.cfg,ex=M.ex,o=M.opt,t2=c.tpl==2,sk=t2?'scale2':'scale1';
   const inp=(k,l,ph,t)=>`<div class="fg"><label class="lb">${l}</label><input class="inp" data-k="${k}" ${t?`type="${t}" inputmode="numeric"`:''} value="${esc(c[k])}" placeholder="${ph||''}"></div>`;
@@ -1216,7 +1233,7 @@ function mgStep3(){
   ${M.optOpen?sw('bg','Hiển thị màu nền','Bật/tắt lớp nền màu phía sau ảnh đã được ghép')+colors+sw('stats','Thống kê tướng/skin','Hiển thị tổng số lượng tướng và trang phục mà bạn sở hữu (Mẫu 1)')+(t2?sw('cover','Che tên nhân vật game (Mẫu 2)','Đặt khung che đè lên tên nhân vật trên ảnh Profile')+(o.cover?coverBlk:''):'')+sw('border','Hiển thị viền ảnh','Hiển thị đường viền màu gradient vàng trắng bao quanh ảnh ghép')+sw('title','Hiển thị tiêu đề','Thêm tiêu đề tùy chỉnh ở phía trên bức ảnh')+(o.title?inp('title','Tiêu đề','TÀI KHOẢN LIÊN QUÂN'):''):''}
   <button class="btn btn-ol btn-block" data-m="adv">${M.adv?'Thu gọn ▲':'+ Thêm nút bấm, top tướng, bậc EVO ▼'}</button>
   ${M.adv?`<h4 class="mgh">Các tính năng nâng cao (không bắt buộc)</h4><p class="mgtip">Ảnh nào tải lên cũng bấm <b>✂️ Cắt</b> được nếu cần. Không bấm là dùng nguyên ảnh.</p>${up('win','Ảnh tỉ lệ thắng (Mẫu 1)')}${up('power','Ảnh lực chiến và top tướng (Mẫu 1)')}<div class="fgrid">${inp('giayTS','Số Giấy Tuyệt Sắc','0')}${inp('theDoiTen','Thẻ đổi tên','0')}${inp('giayS','Số Giấy S','0')}${inp('maAcc','Mã số ACC','Nhập mã số ACC...')}</div>${up('avatar','Avatar (Mẫu 1)')}${up('profile','Profile (làm nền Mẫu 2)')}${up('kills','Thông báo hạ (tối đa 3 ảnh)',true)}`:''}
-  <div class="mgfoot"><button class="btn btn-ol" data-m="back">‹ Quay lại</button><button class="btn btn-gd" data-m="next">Ghép ảnh ›</button></div></div>`;
+  <div class="mgfoot"><button class="btn btn-ol" data-m="back">‹ Quay lại</button><button class="btn btn-gd" data-m="next">Ghép ảnh${mgCostTxt()} ›</button></div></div>`;
 }
 function mgStep4(){
   const q=S.m.q||1;
@@ -1226,6 +1243,7 @@ function mgStep4(){
 }
 function renderMerge(){
   const M=S.m;if(!M)return;
+  {const fi=$('#mFeeInfo');if(fi){const n=mgCount();fi.innerHTML=isA()?'👑 Admin ghép ảnh <b>miễn phí</b>.':(S.mergeFee?`💰 <b>Phí ghép ảnh: ${vnd(S.mergeFee)} mỗi ảnh</b> (tính cả ảnh skin và ảnh bổ sung), trừ vào số dư khi bấm "Ghép ảnh". Số dư hiện tại: <b>${vnd(S.me?S.me.balance:0)}</b>${n?` · Hiện có ${n} ảnh → phí ${vnd(Math.max(0,n-(M.paid||0))*S.mergeFee)}`:''}`:'')}}
   $('#mSteps').innerHTML=['Tải ảnh','Cắt ảnh','Cấu hình','Kết quả'].map((t,i)=>`<span class="${M.step===i+1?'on':''}">${i+1}. ${t}</span>`).join('');
   $('#mBody').innerHTML=[mgStep1,mgStep2,mgStep3,mgStep4][M.step-1]();
   paintIcons();
@@ -1267,7 +1285,7 @@ document.addEventListener('click',e=>{
   const M=S.m,a=b.dataset.m,v=b.dataset.v,i=Number(b.dataset.i);
   if(a==='del'){M.items.splice(i,1);M.cur=mc(M.cur,0,Math.max(0,M.items.length-1))}
   else if(a==='mv'){const j=i+Number(v);if(j>=0&&j<M.items.length){[M.items[i],M.items[j]]=[M.items[j],M.items[i]]}}
-  else if(a==='next'){if(M.step===1&&!M.items.length)return toast('Hãy chọn ít nhất 1 ảnh');M.step=Math.min(4,M.step+1);if(M.step===2)M.cur=mc(M.cur,0,M.items.length-1)}
+  else if(a==='next'){if(M.step===1&&!M.items.length)return toast('Hãy chọn ít nhất 1 ảnh');if(M.step===3)return mgPay().then(ok=>{if(ok){M.step=4;renderMerge()}});M.step=Math.min(4,M.step+1);if(M.step===2)M.cur=mc(M.cur,0,M.items.length-1)}
   else if(a==='back')M.step=Math.max(1,M.step-1);
   else if(a==='mode'){M.mode=v;if(v==='sync')M.sync={...M.items[M.cur].crop}}
   else if(a==='pre')M.sync=mgPreset(v);
