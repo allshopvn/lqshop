@@ -329,6 +329,20 @@ input[type=range]{accent-color:var(--gd);width:100%;margin:6px 0 4px}
 .inp,textarea.inp,select.inp,input.inp[type=file]{color:#fff}
 .inp::placeholder,textarea.inp::placeholder{color:#7f89a8}
 select.inp option{color:#fff;background:#0f1424}
+.chatbox{max-width:720px;margin:0 auto;padding:0;display:flex;flex-direction:column;overflow:hidden}
+.chatlist{height:min(62vh,540px);overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:8px}
+.msg{max-width:80%;display:flex;flex-direction:column}.msg.me{align-self:flex-end;align-items:flex-end}.msg.ot{align-self:flex-start}
+.msg .mb{padding:9px 13px;border-radius:16px;line-height:1.45;word-break:break-word}
+.msg.me .mb{background:linear-gradient(135deg,var(--gd2),var(--gd));color:#1a1200;border-bottom-right-radius:4px}
+.msg.ot .mb{background:var(--bg2);border:1px solid var(--bd);border-bottom-left-radius:4px}
+.msg small{color:var(--mu);font-size:11px;margin-top:3px}
+.chatform{display:flex;gap:8px;padding:10px;border-top:1px solid var(--bd);align-items:flex-end}
+.chatform textarea{margin:0;min-height:44px;max-height:120px;resize:none;flex:1}
+.conv{display:flex;gap:12px;align-items:center;padding:12px 14px;border-bottom:1px solid var(--bd);cursor:pointer}.conv:hover{background:var(--bg2)}
+.ava2{width:40px;height:40px;border-radius:50%;background:var(--bg2);display:grid;place-items:center;font-weight:700;color:var(--gd);flex:none}
+.fab{position:fixed;right:16px;bottom:88px;width:54px;height:54px;border-radius:50%;background:linear-gradient(135deg,var(--gd2),var(--gd));color:#1a1200;place-items:center;box-shadow:0 8px 24px #0008;z-index:40;cursor:pointer;border:0;font-size:24px;padding:0}
+.fab .bdg{border-color:var(--bg)}
+@media(min-width:900px){.fab{bottom:24px}}
 </style>
 </head>
 <body>
@@ -342,6 +356,7 @@ select.inp option{color:#fff;background:#0f1424}
       <button data-go="topup"><i data-ic="wallet"></i>Nạp tiền</button>
       <button data-go="history"><i data-ic="clock"></i>Lịch sử</button>
       <button data-go="merge"><i data-ic="star"></i>Ghép ảnh</button>
+      <button data-go="chat" id="navChat" style="display:none"><i data-ic="send"></i>Chat<span class="nb" id="nChatN" style="display:none"></span></button>
       <button data-go="withdraw" id="navWd" style="display:none"><i data-ic="wallet"></i>Rút tiền</button>
       <button data-go="sell" id="navSell" style="display:none"><i data-ic="plus"></i>Đăng bán</button>
       <button data-go="admin" id="navAdmin" style="display:none"><i data-ic="shield"></i>Quản trị<span class="nb" id="nAdminN" style="display:none"></span></button>
@@ -353,6 +368,7 @@ select.inp option{color:#fff;background:#0f1424}
     <button data-go="history"><i data-ic="clock"></i>Lịch sử giao dịch</button>
     <button data-go="topup"><i data-ic="wallet"></i>Nạp tiền</button>
     <button data-go="merge"><i data-ic="star"></i>Ghép ảnh acc</button>
+    <button data-go="chat" id="menuChat" style="display:none"><i data-ic="send"></i>Chat với admin<span class="nb" id="mChatN" style="display:none"></span></button>
     <button data-go="withdraw" id="menuWd" style="display:none"><i data-ic="wallet"></i>Rút tiền</button>
     <button data-go="sell" id="menuSell" style="display:none"><i data-ic="plus"></i>Đăng bán acc</button>
     <button data-go="admin" id="menuAdmin" style="display:none"><i data-ic="shield"></i>Quản trị<span class="nb" id="mAdminN" style="display:none"></span></button>
@@ -471,7 +487,7 @@ select.inp option{color:#fff;background:#0f1424}
       <form class="box" id="fCard" novalidate>
         <h3><i data-ic="card"></i>Nạp thẻ cào</h3>
         <div class="fg"><label class="lb" for="tc">Nhà mạng</label><select class="sel" id="tc"><option>Viettel</option><option>Vinaphone</option><option>Mobifone</option><option>Garena</option><option>Zing</option></select></div>
-        <div class="fg"><span class="lb">Mệnh giá</span><div class="amts" id="amts"></div></div>
+        <div class="fg"><span class="lb">Mệnh giá</span><div class="amts" id="amts"></div><div class="feeb" id="cardFeeInfo" style="margin:10px 0 0"></div></div>
         <div class="fg"><label class="lb" for="ts">Số seri</label><input class="inp mono" id="ts" placeholder="Nhập số seri thẻ" inputmode="numeric"></div>
         <div class="fg"><label class="lb" for="tm">Mã thẻ</label><input class="inp mono" id="tm" placeholder="Nhập mã thẻ" inputmode="numeric"><div class="err" id="eT"></div></div>
         <button class="btn btn-gd btn-block" type="submit"><i data-ic="send"></i>Nạp thẻ</button>
@@ -540,6 +556,13 @@ select.inp option{color:#fff;background:#0f1424}
     <div id="mBody"></div>
   </section>
 
+  <!-- CHAT -->
+  <section class="view" id="v-chat">
+    <div class="page-h"><h1>Chat với admin</h1><p>Nhắn tin trực tiếp với admin để được hỗ trợ</p></div>
+    <div class="box chatbox"><div class="chatlist" id="chatList"></div>
+      <form class="chatform" id="fChat"><textarea class="inp" id="chatIn" rows="1" placeholder="Nhập tin nhắn... (Enter để gửi)" maxlength="2000"></textarea><button class="btn btn-gd" type="submit">Gửi</button></form></div>
+  </section>
+
   <!-- WITHDRAW -->
   <section class="view" id="v-withdraw">
     <div class="page-h"><h1>Rút tiền</h1><p>Rút số dư về tài khoản ngân hàng của bạn, tối thiểu 10.000đ</p></div>
@@ -596,6 +619,7 @@ select.inp option{color:#fff;background:#0f1424}
 <div class="ov" id="ov"><div class="modal" id="modal" role="dialog" aria-modal="true"></div></div>
 <div class="toast" id="toast" role="status"></div>
 
+<button class="fab" id="fab" aria-label="Chat" style="display:none">💬<span class="bdg" id="fabN" style="display:none"></span></button>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script>
 const IC={home:'<path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',gift:'<rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13M19 12v8a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-8M7.5 8a2.5 2.5 0 0 1 0-5C11 3 12 8 12 8s1-5 4.5-5a2.5 2.5 0 0 1 0 5"/>',wallet:'<path d="M19 7V5a2 2 0 0 0-2-2H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"/>',clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',user:'<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',userplus:'<circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0M19 8v6M16 11h6"/>',crown:'<path d="m2 7 5 5 5-8 5 8 5-5-2 12H4z"/>',zap:'<path d="M13 2 3 14h9l-1 8 10-12h-9z"/>',cart:'<circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.7 12.4a2 2 0 0 0 2 1.6h8.6a2 2 0 0 0 2-1.6L22 7H6"/>',box:'<path d="M21 8 12 3 3 8v8l9 5 9-5zM3 8l9 5 9-5M12 13v8"/>',check:'<path d="M20 6 9 17l-5-5"/>',users:'<circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0M16 3.5a4 4 0 0 1 0 9M22 21a7 7 0 0 0-4-6.3"/>',shield:'<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/>',search:'<circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>',headset:'<path d="M3 14v-2a9 9 0 0 1 18 0v2M21 14v3a2 2 0 0 1-2 2h-1v-7h3M3 14v3a2 2 0 0 0 2 2h1v-7H3"/>',login:'<path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/>',logout:'<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>',card:'<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/>',send:'<path d="m22 2-7 20-4-9-9-4z"/><path d="M22 2 11 13"/>',bank:'<path d="M3 21h18M4 10h16M5 10v8M9 10v8M15 10v8M19 10v8M12 3l9 5H3z"/>',info:'<circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/>',trophy:'<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0zM17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/>',lock:'<rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',x:'<path d="M18 6 6 18M6 6l12 12"/>',star:'<path d="m12 2 3 7h7l-5.5 4.5 2 7.5-6.5-4.5L5.5 21l2-7.5L2 9h7z"/>',plus:'<path d="M12 5v14M5 12h14"/>'};
@@ -612,7 +636,7 @@ const SB_URL="https://dnjtfyviroswhyiipgwb.supabase.co",SB_KEY="sb_publishable_h
 const sb=window.supabase?window.supabase.createClient(SB_URL,SB_KEY):null;
 const RANKS=['Kim Cương','Tinh Anh','Cao Thủ','Chiến Tướng','Thách Đấu'],CATS=['VIP','Random','Trắng TT','Giá rẻ'],GAME='Liên Quân Mobile';
 const DEF_CATS=[{id:'d1',name:'VIP',description:'Full skin SSS, rank Thách Đấu',image_url:'acc1.jpg'},{id:'d2',name:'Random',description:'Thử vận may chỉ từ 20K',image_url:'acc2.jpg'},{id:'d3',name:'Trắng TT',description:'Đổi được SĐT, email',image_url:'acc3.jpg'},{id:'d4',name:'Giá rẻ',description:'Dưới 200K, nhiều tướng',image_url:'acc4.jpg'}],DEF_RANKS=RANKS.map((n,i)=>({id:'r'+i,name:n}));
-const S={mergeFee:null,wds:[],wdOk:false,fee:null,m:null,pendingImg:null,pendingFill:null,dirty:false,cats:DEF_CATS,ranks:DEF_RANKS,catsOk:false,catEdit:null,me:null,members:null,accs:[],sec:{},buys:[],txns:[],cards:[],users:[],bank:{},cat:'',amt:50000,view:'home',hTab:'buy',aTab:'acc',edit:null,loaded:false};
+const S={msgs:[],chatOk:false,chatUser:null,cardFee:null,mergeFee:null,wds:[],wdOk:false,fee:null,m:null,pendingImg:null,pendingFill:null,dirty:false,cats:DEF_CATS,ranks:DEF_RANKS,catsOk:false,catEdit:null,me:null,members:null,accs:[],sec:{},buys:[],txns:[],cards:[],users:[],bank:{},cat:'',amt:50000,view:'home',hTab:'buy',aTab:'acc',edit:null,loaded:false};
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const chk=r=>{if(r.error)throw r.error;return r.data};
 const isA=()=>!!S.me&&S.me.role==='admin';
@@ -624,7 +648,7 @@ const canOpen=a=>a.status!=='sold'||isA()||mineBuy(a);
 const dtf=t=>t?new Date(t).toLocaleString('vi-VN',{hour:'2-digit',minute:'2-digit',day:'2-digit',month:'2-digit',year:'numeric'}):'';
 const rid=()=>Date.now()+'-'+Math.random().toString(36).slice(2,8);
 const typing=()=>{const a=document.activeElement;return !!a&&/INPUT|TEXTAREA|SELECT/.test(a.tagName)};
-function viErr(m){m=m||'';if(/(request_withdraw|admin_review_withdraw|withdrawals)/i.test(m)&&/(find|exist|relation|schema)/i.test(m))return 'Chưa chạy SQL rút tiền (supabase-update-5.sql) trong Supabase';if(/Invalid login/i.test(m))return 'Sai email hoặc mật khẩu';if(/not confirmed/i.test(m))return 'Email chưa được xác nhận, hãy kiểm tra hộp thư';if(/rate limit|too many/i.test(m))return 'Thao tác quá nhanh, hãy thử lại sau ít phút';if(/at least 6|weak/i.test(m))return 'Mật khẩu quá yếu (tối thiểu 6 ký tự)';if(/Could not find the '(old_price|cat|sss|seller_id|seller_name|approval|reject_reason)' column/i.test(m))return 'Chưa chạy SQL cập nhật mới trong Supabase, hãy chạy file SQL rồi thử lại';if(/row-level security/i.test(m))return 'Không có quyền thực hiện (hãy chắc chắn đã chạy SQL cập nhật mới)';return m}
+function viErr(m){m=m||'';if(/(submit_card|mark_read)/i.test(m)&&/(find|exist|relation|schema)/i.test(m))return 'Chưa chạy SQL cập nhật mới nhất (supabase-update-7.sql) trong Supabase';if(/messages/i.test(m)&&/(find|exist|relation|schema)/i.test(m))return 'Chưa chạy SQL chat (supabase-update-7.sql) trong Supabase';if(/(request_withdraw|admin_review_withdraw|withdrawals)/i.test(m)&&/(find|exist|relation|schema)/i.test(m))return 'Chưa chạy SQL rút tiền (supabase-update-5.sql) trong Supabase';if(/Invalid login/i.test(m))return 'Sai email hoặc mật khẩu';if(/not confirmed/i.test(m))return 'Email chưa được xác nhận, hãy kiểm tra hộp thư';if(/rate limit|too many/i.test(m))return 'Thao tác quá nhanh, hãy thử lại sau ít phút';if(/at least 6|weak/i.test(m))return 'Mật khẩu quá yếu (tối thiểu 6 ký tự)';if(/Could not find the '(old_price|cat|sss|seller_id|seller_name|approval|reject_reason)' column/i.test(m))return 'Chưa chạy SQL cập nhật mới trong Supabase, hãy chạy file SQL rồi thử lại';if(/row-level security/i.test(m))return 'Không có quyền thực hiện (hãy chắc chắn đã chạy SQL cập nhật mới)';return m}
 let tt;function toast(m,c){const t=$('#toast');t.textContent=m;t.style.borderLeftColor=c||'var(--gd)';t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),2800)}
 function setErr(id,m){$(id).textContent=m||'';return !m}
 async function copyTxt(t){try{await navigator.clipboard.writeText(t)}catch(e){const a=document.createElement('textarea');a.value=t;a.style.cssText='position:fixed;opacity:0';document.body.appendChild(a);a.select();try{document.execCommand('copy')}catch(x){}a.remove()}toast('Đã sao chép')}
@@ -635,30 +659,32 @@ async function refresh(soft){
   if(!sb){S.loaded=true;renderAll();return}
   try{
     const s=(await sb.auth.getSession()).data.session,uid=s&&s.user.id;
-    const [ra,rb,rc,rcat,rrk]=await Promise.all([sb.from('accounts').select('*').order('created_at',{ascending:false}),sb.from('settings').select('key,value').in('key',['bank','fee','merge_fee']),sb.rpc('member_count'),sb.from('categories').select('*').order('sort').order('created_at'),sb.from('ranks').select('*').order('sort').order('created_at')]);
-    S.catsOk=!rcat.error&&!rrk.error;S.cats=rcat.error?DEF_CATS:(rcat.data||[]);S.ranks=rrk.error?DEF_RANKS:(rrk.data||[]);S.accs=ra.data||[];{const st={};(rb.data||[]).forEach(x=>st[x.key]=x.value);S.bank=st.bank||{};S.fee=st.fee&&st.fee.percent!=null?Number(st.fee.percent):null;S.mergeFee=st.merge_fee&&st.merge_fee.amount!=null?Number(st.merge_fee.amount):null}S.members=rc.error||rc.data==null?null:Number(rc.data);S.me=null;S.sec={};S.buys=[];S.txns=[];S.cards=[];S.users=[];S.wds=[];
+    const [ra,rb,rc,rcat,rrk]=await Promise.all([sb.from('accounts').select('*').order('created_at',{ascending:false}),sb.from('settings').select('key,value').in('key',['bank','fee','merge_fee','card_fee']),sb.rpc('member_count'),sb.from('categories').select('*').order('sort').order('created_at'),sb.from('ranks').select('*').order('sort').order('created_at')]);
+    S.catsOk=!rcat.error&&!rrk.error;S.cats=rcat.error?DEF_CATS:(rcat.data||[]);S.ranks=rrk.error?DEF_RANKS:(rrk.data||[]);S.accs=ra.data||[];{const st={};(rb.data||[]).forEach(x=>st[x.key]=x.value);S.bank=st.bank||{};S.fee=st.fee&&st.fee.percent!=null?Number(st.fee.percent):null;S.mergeFee=st.merge_fee&&st.merge_fee.amount!=null?Number(st.merge_fee.amount):null;S.cardFee=st.card_fee&&st.card_fee.percent!=null?Number(st.card_fee.percent):null}S.members=rc.error||rc.data==null?null:Number(rc.data);S.me=null;S.sec={};S.buys=[];S.txns=[];S.cards=[];S.users=[];S.wds=[];S.msgs=[];
     if(uid){
       const q=await Promise.all([
         sb.from('profiles').select('*').eq('id',uid).maybeSingle(),
         sb.from('transactions').select('*').order('created_at',{ascending:false}).limit(300),
         sb.from('purchases').select('*').order('created_at',{ascending:false}),
         sb.from('card_topups').select('*').order('created_at',{ascending:false}).limit(300),
-        sb.from('account_secrets').select('*'),sb.from('withdrawals').select('*').order('created_at',{ascending:false}).limit(300)]);
+        sb.from('account_secrets').select('*'),sb.from('withdrawals').select('*').order('created_at',{ascending:false}).limit(300),sb.from('messages').select('*').order('created_at',{ascending:false}).limit(1000)]);
       S.me=q[0].data;S.txns=q[1].data||[];S.buys=q[2].data||[];S.cards=q[3].data||[];
-      S.wdOk=!q[5].error;S.wds=q[5].data||[];(q[4].data||[]).forEach(x=>S.sec[x.account_id]=x.secret);
+      S.wdOk=!q[5].error;S.wds=q[5].data||[];S.chatOk=!q[6].error;S.msgs=(q[6].data||[]).slice().reverse();(q[4].data||[]).forEach(x=>S.sec[x.account_id]=x.secret);
       if(S.me&&S.me.role==='admin')S.users=(await sb.from('profiles').select('*').order('created_at',{ascending:false})).data||[];
     }
   }catch(e){}
-  S.loaded=true;checkNotif();renderAll(soft);
+  S.loaded=true;checkNotif();checkMsgNotif();renderAll(soft);
 }
 function renderAll(soft){
-  renderHeader();renderNotif();renderCats();renderStats();renderGrid();renderBank();
+  renderHeader();renderNotif();renderCats();renderAmts();renderStats();renderGrid();renderBank();
   if(S.view==='history')renderHist();
   if(S.view==='profile'&&!(soft&&typing()))renderProfile();
   if(S.view==='withdraw'&&!(soft&&typing()))renderWd();
-  if(S.view==='admin'&&!(soft&&(typing()||S.dirty)))renderAdmin();
+  if(S.view==='admin'&&S.aTab==='chat'&&$('#convWrap'))updateChat();
+  else if(S.view==='admin'&&!(soft&&(typing()||S.dirty)))renderAdmin();
+  if(S.view==='chat')updateChat();
   if(S.view==='sell'&&!(soft&&(typing()||S.dirty)))renderSell();
-  if(['history','topup','profile','admin','sell','merge','withdraw'].includes(S.view)&&S.loaded&&!S.me)go('login');
+  if(['history','topup','profile','admin','sell','merge','withdraw','chat'].includes(S.view)&&S.loaded&&!S.me)go('login');
 }
 
 /* ---------- header / điều hướng ---------- */
@@ -666,8 +692,8 @@ function renderAll(soft){
 const NT={seen:null,ring:false},BASE_TITLE=document.title;
 const nSound=()=>{try{return localStorage.getItem('nSound')!=='0'}catch(e){return true}};
 const nFmt=n=>n>99?'99+':String(n);
-function notifList(){return {card:S.cards.filter(c=>c.status==='pending'),wd:S.wds.filter(w=>w.status==='pending'),acc:S.accs.filter(a=>a.approval==='pending')}}
-function notifTotal(){if(!isA())return 0;const L=notifList();return L.card.length+L.wd.length+L.acc.length}
+function notifList(){return {card:S.cards.filter(c=>c.status==='pending'),wd:S.wds.filter(w=>w.status==='pending'),acc:S.accs.filter(a=>a.approval==='pending'),chat:S.msgs.filter(m=>!m.read_at&&m.sender_role==='user')}}
+function notifTotal(){if(!isA())return 0;const L=notifList();return L.card.length+L.wd.length+L.acc.length+L.chat.length}
 function beep(){
   if(!nSound())return;
   try{const A=window.AudioContext||window.webkitAudioContext,c=new A(),o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.value=880;g.gain.value=.08;o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+.2);setTimeout(()=>c.close(),500)}catch(e){}
@@ -695,7 +721,7 @@ function renderNotif(){
   const row=(ic,n,txt,last,tab)=>n?`<div class="ni" data-nt="${tab}"><span class="ic">${ic}</span><div style="flex:1;min-width:0"><b>${n} ${txt}</b><small>${last}</small></div><i class="nb">${nFmt(n)}</i></div>`:'';
   const lastOf=(a,f)=>a.length?'Mới nhất: '+esc(f(a[0])):'';
   P.innerHTML=`<div class="nh"><b>🔔 Thông báo</b><span style="color:var(--mu);font-size:13px">${tot?tot+' việc cần xử lý':'Không có việc mới'}</span></div>`
-   +(tot?row('💳',L.card.length,'thẻ cào chờ duyệt (nạp tiền)',lastOf(L.card,x=>x.username+' · '+vnd(x.amount)),'card')+row('💸',L.wd.length,'yêu cầu rút tiền chờ duyệt',lastOf(L.wd,x=>x.username+' · '+vnd(x.amount)),'wd')+row('📦',L.acc.length,'acc chờ duyệt',lastOf(L.acc,x=>(x.seller_name||'Người dùng')+' · '+x.title),'pend'):'<div style="padding:24px;text-align:center;color:var(--mu)">🎉 Không có yêu cầu nào đang chờ</div>')
+   +(tot?row('💳',L.card.length,'thẻ cào chờ duyệt (nạp tiền)',lastOf(L.card,x=>x.username+' · '+vnd(x.amount)),'card')+row('💸',L.wd.length,'yêu cầu rút tiền chờ duyệt',lastOf(L.wd,x=>x.username+' · '+vnd(x.amount)),'wd')+row('📦',L.acc.length,'acc chờ duyệt',lastOf(L.acc,x=>(x.seller_name||'Người dùng')+' · '+x.title),'pend')+row('💬',L.chat.length,'tin nhắn chưa đọc',lastOf(L.chat.slice().reverse(),x=>chatName(x.thread_user)+': '+x.body.slice(0,40)),'chat'):'<div style="padding:24px;text-align:center;color:var(--mu)">🎉 Không có yêu cầu nào đang chờ</div>')
    +`<div class="nf"><button class="btn btn-ol sm" id="nSnd">${nSound()?'🔊 Âm thanh: Bật':'🔇 Âm thanh: Tắt'}</button>${('Notification' in window)&&Notification.permission!=='granted'?'<button class="btn btn-ol sm" id="nPerm">Bật thông báo trình duyệt</button>':''}</div>`;
 }
 document.addEventListener('click',e=>{
@@ -717,14 +743,17 @@ function renderHeader(){
   {const n=notifTotal();[$('#nAdminN'),$('#mAdminN')].forEach(el=>{if(el){el.style.display=n?'':'none';el.textContent=nFmt(n)}});document.title=(n?'('+n+') ':'')+BASE_TITLE}
   $('#navSell').style.display=$('#menuSell').style.display=(S.me&&!isA())?'':'none';
   $('#navWd').style.display=$('#menuWd').style.display=(S.me&&!isA())?'':'none';
+  $('#navChat').style.display=$('#menuChat').style.display=(S.me&&!isA())?'':'none';
+  {const cn=chatUnread();[$('#nChatN'),$('#mChatN')].forEach(el=>{if(el){el.style.display=cn?'':'none';el.textContent=nFmt(cn)}});updFab()}
 }
 function go(v){
-  if(['history','topup','profile','admin','sell','merge','withdraw'].includes(v)&&!S.me){toast('Vui lòng đăng nhập để tiếp tục');v='login'}
+  if(['history','topup','profile','admin','sell','merge','withdraw','chat'].includes(v)&&!S.me){toast('Vui lòng đăng nhập để tiếp tục');v='login'}
   if(v==='admin'&&!isA())v='home';
   if(v==='sell'&&isA())v='admin';
+  if(v==='chat'&&isA()){v='admin';S.aTab='chat';S.chatUser=null}
   S.view=v;$$('.view').forEach(x=>x.classList.toggle('on',x.id==='v-'+v));
   $$('.nav [data-go],.bnav [data-go]').forEach(b=>b.classList.toggle('on',b.dataset.go===v));
-  if(v==='history')renderHist();if(v==='profile')renderProfile();if(v==='admin')renderAdmin();if(v==='sell')renderSell();if(v==='merge')renderMerge();if(v==='withdraw')renderWd();if(v==='topup')renderBank();
+  if(v==='history')renderHist();if(v==='profile')renderProfile();if(v==='admin')renderAdmin();if(v==='sell')renderSell();if(v==='merge')renderMerge();if(v==='withdraw')renderWd();if(v==='chat')updateChat();updFab();if(v==='topup')renderBank();
   window.scrollTo({top:0,behavior:'smooth'});
 }
 document.addEventListener('click',e=>{
@@ -849,23 +878,23 @@ function renderHist(){
   if(t==='buy')T.innerHTML=`<thead><tr><th>Mã acc</th>${A?'<th>Người mua</th>':''}<th>Tên</th><th>Thông tin đăng nhập</th><th>Giá</th><th>Thời gian</th></tr></thead><tbody>${S.buys.length?S.buys.map(h=>{const s=S.sec[h.account_id]!==undefined?S.sec[h.account_id]:h.secret;return `<tr><td><b>#${acode(h.account_id)}</b></td>${A?`<td>${esc(h.username)}</td>`:''}<td>${esc(h.account_title)}</td><td class="mono" style="white-space:pre-wrap;min-width:180px">${s==null?'-':esc(s)+' '+cp(s)}</td><td style="color:var(--gd);font-weight:700">${vnd(h.price)}</td><td style="color:var(--mu)">${dtf(h.created_at)}</td></tr>`}).join(''):empty('Bạn chưa mua tài khoản nào. <span class="lnk" data-go="home">Mua ngay</span>')}</tbody>`;
   if(t==='sale'){const L=S.txns.filter(x=>x.type==='sale'||x.type==='fee'||x.type==='merge');T.innerHTML=`<thead><tr><th>Thời gian</th>${A?'<th>Tài khoản</th>':''}<th>Loại</th><th>Nội dung</th><th>Số tiền</th></tr></thead><tbody>${L.length?L.map(x=>`<tr><td style="color:var(--mu)">${dtf(x.created_at)}</td>${A?`<td>${esc(x.username)}</td>`:''}<td>${x.type==='fee'?'Phí thu về':x.type==='merge'?'Phí ghép ảnh':'Tiền bán acc'}</td><td style="white-space:normal;min-width:180px">${esc(x.note)}</td><td style="color:var(${x.amount<0?'--rd':'--ok'});font-weight:700">${x.amount>0?'+':''}${vnd(x.amount)}</td></tr>`).join(''):empty('Chưa có tiền bán acc nào',A?5:4)}</tbody>`}
   if(t==='topup'){
-    const L=[...S.txns.filter(x=>x.type==='bank'||x.type==='card').map(x=>({code:x.id.slice(0,7).toUpperCase(),user:x.username,type:x.type==='card'?'Thẻ cào':'Chuyển khoản',amt:x.amount,st:'ok',time:x.created_at})),
-      ...S.cards.filter(c=>c.status!=='approved').map(c=>({code:c.id.slice(0,7).toUpperCase(),user:c.username,type:'Thẻ '+c.telco,amt:c.amount,st:c.status==='rejected'?'er':'wt',time:c.created_at}))].sort((a,b)=>new Date(b.time)-new Date(a.time));
-    T.innerHTML=`<thead><tr><th>Mã GD</th>${A?'<th>Tài khoản</th>':''}<th>Hình thức</th><th>Mệnh giá</th><th>Thực nhận</th><th>Trạng thái</th><th>Thời gian</th></tr></thead><tbody>${L.length?L.map(h=>`<tr><td class="mono">${h.code}</td>${A?`<td>${esc(h.user)}</td>`:''}<td>${esc(h.type)}</td><td>${vnd(h.amt)}</td><td style="color:var(--gd);font-weight:700">${h.st==='ok'?vnd(h.amt):'-'}</td><td><span class="st-b ${h.st==='ok'?'st-ok':h.st==='er'?'st-er':'st-wt'}">${h.st==='ok'?'Thành công':h.st==='er'?'Bị từ chối':'Đang chờ duyệt'}</span></td><td style="color:var(--mu)">${dtf(h.time)}</td></tr>`).join(''):empty('Chưa có giao dịch nạp tiền')}</tbody>`;
+    const L=[...S.txns.filter(x=>x.type==='bank').map(x=>({code:x.id.slice(0,7).toUpperCase(),user:x.username,type:'Chuyển khoản',amt:x.amount,st:'ok',time:x.created_at})),
+      ...S.cards.map(c=>({code:c.id.slice(0,7).toUpperCase(),user:c.username,type:'Thẻ '+c.telco+(c.fee_percent>0?' (CK '+c.fee_percent+'%)':''),amt:c.amount,recv:c.received==null?c.amount:c.received,st:c.status==='approved'?'ok':c.status==='rejected'?'er':'wt',time:c.created_at}))].sort((a,b)=>new Date(b.time)-new Date(a.time));
+    T.innerHTML=`<thead><tr><th>Mã GD</th>${A?'<th>Tài khoản</th>':''}<th>Hình thức</th><th>Mệnh giá</th><th>Thực nhận</th><th>Trạng thái</th><th>Thời gian</th></tr></thead><tbody>${L.length?L.map(h=>`<tr><td class="mono">${h.code}</td>${A?`<td>${esc(h.user)}</td>`:''}<td>${esc(h.type)}</td><td>${vnd(h.amt)}</td><td style="color:var(--gd);font-weight:700">${h.st==='ok'?vnd(h.recv==null?h.amt:h.recv):'-'}</td><td><span class="st-b ${h.st==='ok'?'st-ok':h.st==='er'?'st-er':'st-wt'}">${h.st==='ok'?'Thành công':h.st==='er'?'Bị từ chối':'Đang chờ duyệt'}</span></td><td style="color:var(--mu)">${dtf(h.time)}</td></tr>`).join(''):empty('Chưa có giao dịch nạp tiền')}</tbody>`;
   }
   if(t==='spin')T.innerHTML=`<thead><tr><th>#</th><th>Phần thưởng</th><th>Chi phí</th><th>Thời gian</th></tr></thead><tbody>${empty('Chưa có lượt quay nào (vòng quay đang được phát triển)',4)}</tbody>`;
 }
 
 /* ---------- nạp tiền ---------- */
 const AMTS=[10000,20000,50000,100000,200000,500000];
-function renderAmts(){$('#amts').innerHTML=AMTS.map(a=>`<button type="button" class="amt ${a===S.amt?'on':''}" data-a="${a}">${a/1000}K<small>Nhận ${vnd(a)}</small></button>`).join('')}
+function renderAmts(){const p=S.cardFee||0,rc=a=>a-Math.round(a*p/100);$('#amts').innerHTML=AMTS.map(a=>`<button type="button" class="amt ${a===S.amt?'on':''}" data-a="${a}">${a/1000}K<small>Nhận ${vnd(rc(a))}</small></button>`).join('');const fi=$('#cardFeeInfo');if(fi)fi.innerHTML=p>0?`💳 <b>Chiết khấu thẻ cào: ${p}%</b>. Nạp thẻ ${vnd(S.amt)} bạn nhận <b>${vnd(rc(S.amt))}</b>.`:''}
 $('#amts').onclick=e=>{const b=e.target.closest('.amt');if(b){S.amt=+b.dataset.a;renderAmts()}};
 $('#fCard').onsubmit=async e=>{e.preventDefault();
   const s=$('#ts').value.trim(),m=$('#tm').value.trim();
   if(!S.me)return go('login');
   if(!setErr('#eT',s.length<8||m.length<8?'Seri và mã thẻ cần tối thiểu 8 ký tự':''))return;
-  try{chk(await sb.from('card_topups').insert({user_id:S.me.id,username:S.me.username,telco:$('#tc').value,amount:S.amt,serial:s,pin:m}));
-    $('#ts').value=$('#tm').value='';await refresh();toast('Đã gửi thẻ, vui lòng chờ admin duyệt','var(--ok)')}catch(x){toast(viErr(x.message),'var(--rd)')}};
+  try{const r=chk(await sb.rpc('submit_card',{p_telco:$('#tc').value,p_amount:S.amt,p_serial:s,p_pin:m}));
+    $('#ts').value=$('#tm').value='';await refresh();toast('Đã gửi thẻ, bạn sẽ nhận '+vnd(r&&r.received!=null?r.received:S.amt)+' sau khi admin duyệt','var(--ok)')}catch(x){toast(viErr(x.message),'var(--rd)')}};
 function renderBank(){
   const b=S.bank||{},note=S.me?S.me.topup_code:'(đăng nhập để xem)';
   $('#bankBox').innerHTML=`${b.qr_url?`<img class="qrimg" src="${esc(b.qr_url)}" alt="Mã QR chuyển khoản">`:''}<div class="bank">${b.info?b.info.split('\n').filter(l=>l.trim()).map(l=>`<div class="r"><b style="white-space:pre-wrap">${esc(l)}</b></div>`).join(''):'<div class="r"><span>Admin chưa cài thông tin ngân hàng</span></div>'}<div class="r"><span>Nội dung</span><b class="mono" style="color:var(--gd)">${esc(note)}</b>${S.me?cp(note):''}</div></div>`;
@@ -963,14 +992,14 @@ async function saveCat(btn){
 }
 function renderAdmin(){
   if(!isA())return;S.dirty=false;
-  const T=[['acc',S.edit?'Sửa acc':'Đăng acc'],['list','Quản lý acc'],['pend','Duyệt acc'],['nap','Cộng tiền'],['card','Duyệt thẻ'],['wd','Rút tiền'],['users','Người dùng'],['cats','Danh mục & Rank'],['fee','Phí'],['qr','Cài QR']],pend=S.cards.filter(c=>c.status==='pending'),pendA=S.accs.filter(a=>a.approval==='pending'),pendW=S.wds.filter(w=>w.status==='pending'),t=S.aTab;
-  $('#aTabs').innerHTML=T.map(([k,l])=>`<button class="${t===k?'on':''}" data-at="${k}">${l}${k==='card'&&pend.length?`<i class="nb">${pend.length}</i>`:''}${k==='wd'&&pendW.length?`<i class="nb">${pendW.length}</i>`:''}${k==='pend'&&pendA.length?`<i class="nb">${pendA.length}</i>`:''}</button>`).join('');
+  const T=[['acc',S.edit?'Sửa acc':'Đăng acc'],['list','Quản lý acc'],['pend','Duyệt acc'],['nap','Cộng tiền'],['card','Duyệt thẻ'],['wd','Rút tiền'],['chat','Chat'],['users','Người dùng'],['cats','Danh mục & Rank'],['fee','Phí'],['qr','Cài QR']],pend=S.cards.filter(c=>c.status==='pending'),pendA=S.accs.filter(a=>a.approval==='pending'),pendW=S.wds.filter(w=>w.status==='pending'),chatUn=S.msgs.filter(m=>!m.read_at&&m.sender_role==='user').length,t=S.aTab;
+  $('#aTabs').innerHTML=T.map(([k,l])=>`<button class="${t===k?'on':''}" data-at="${k}">${l}${k==='card'&&pend.length?`<i class="nb">${pend.length}</i>`:''}${k==='wd'&&pendW.length?`<i class="nb">${pendW.length}</i>`:''}${k==='pend'&&pendA.length?`<i class="nb">${pendA.length}</i>`:''}${k==='chat'&&chatUn?`<i class="nb">${chatUn}</i>`:''}</button>`).join('');
   const B=$('#aBody');
   if(t==='acc'){B.innerHTML=accForm();pvDisc();applyPending()}
   if(t==='list')B.innerHTML=`<div class="tbl-w"><table class="tbl"><thead><tr><th>Mã</th><th>Tiêu đề</th><th>Người đăng</th><th>Giá</th><th>Duyệt</th><th>Trạng thái</th><th></th></tr></thead><tbody>${S.accs.length?S.accs.map(a=>`<tr><td><b>#${acode(a.id)}</b></td><td style="white-space:normal;min-width:180px">${esc(a.title)}</td><td>${esc(a.seller_name||'-')}</td><td style="color:var(--gd);font-weight:700">${vnd(a.price)}</td><td>${apBadge(a)}</td><td><span class="st-b ${a.status==='sold'?'st-er':'st-ok'}">${a.status==='sold'?'Đã bán':'Còn'}</span></td><td><button class="btn btn-ol sm" data-act="edit" data-id="${a.id}">${svg('edit')}Sửa</button> <button class="btn btn-ol sm" style="color:var(--rd)" data-act="del" data-id="${a.id}">${svg('trash')}Xóa</button></td></tr>`).join(''):'<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--mu)">Chưa có acc nào</td></tr>'}</tbody></table></div>`;
   if(t==='pend')B.innerHTML=pendA.length?pendA.map(reviewCard).join(''):'<div class="empty">Không có acc nào đang chờ duyệt.</div>';
   if(t==='cats')B.innerHTML=catsAdmin();
-  if(t==='fee'){const got=S.txns.filter(x=>x.type==='fee').reduce((a,x)=>a+x.amount,0);B.innerHTML=`<div class="box" style="max-width:460px"><h3>${svg('wallet')}Phí bán acc của người dùng</h3><div class="fg"><label class="lb">Phí (%) trừ vào tiền người dùng khi bán được acc</label><input class="inp" id="fee_p" inputmode="decimal" value="${S.fee==null?'':S.fee}" placeholder="VD: 5"></div><p class="mgtip">Ví dụ: acc 50.000đ, phí 5% → người bán nhận 47.500đ, ${vnd(2500)} phí cộng vào tài khoản admin.</p><div class="tagi">Số dư tài khoản admin: ${vnd(S.me.balance)} · Phí đã thu: ${vnd(got)}</div>${S.fee==null?'<p class="mgtip" style="color:var(--rd)">Chưa có cài đặt phí trong Supabase. Hãy chạy file supabase-update-4.sql trước.</p>':''}<button class="btn btn-gd btn-block" data-act="feesave">Lưu phí</button></div><div class="box" style="max-width:460px;margin-top:14px"><h3>${svg('star')}Phí ghép ảnh</h3><div class="fg"><label class="lb">Phí mỗi ảnh (đ) trừ vào tiền người dùng khi ghép ảnh</label><input class="inp money" id="mfee_a" inputmode="numeric" value="${S.mergeFee==null?'':Number(S.mergeFee).toLocaleString('vi-VN')}" placeholder="VD: 200"></div><p class="mgtip">Ví dụ: 1 ảnh 200đ, ghép 6 ảnh → người dùng bị trừ 1.200đ, số tiền cộng vào tài khoản admin. Admin ghép ảnh miễn phí. Nhập 0 để miễn phí cho tất cả.</p>${S.mergeFee==null?'<p class="mgtip" style="color:var(--rd)">Chưa có cài đặt phí ghép ảnh trong Supabase. Hãy chạy file supabase-update-6.sql trước.</p>':''}<button class="btn btn-gd btn-block" data-act="mfeesave">Lưu phí ghép ảnh</button></div>`}
+  if(t==='fee'){const got=S.txns.filter(x=>x.type==='fee').reduce((a,x)=>a+x.amount,0);B.innerHTML=`<div class="box" style="max-width:460px"><h3>${svg('wallet')}Phí bán acc của người dùng</h3><div class="fg"><label class="lb">Phí (%) trừ vào tiền người dùng khi bán được acc</label><input class="inp" id="fee_p" inputmode="decimal" value="${S.fee==null?'':S.fee}" placeholder="VD: 5"></div><p class="mgtip">Ví dụ: acc 50.000đ, phí 5% → người bán nhận 47.500đ, ${vnd(2500)} phí cộng vào tài khoản admin.</p><div class="tagi">Số dư tài khoản admin: ${vnd(S.me.balance)} · Phí đã thu: ${vnd(got)}</div>${S.fee==null?'<p class="mgtip" style="color:var(--rd)">Chưa có cài đặt phí trong Supabase. Hãy chạy file supabase-update-4.sql trước.</p>':''}<button class="btn btn-gd btn-block" data-act="feesave">Lưu phí</button></div><div class="box" style="max-width:460px;margin-top:14px"><h3>${svg('star')}Phí ghép ảnh</h3><div class="fg"><label class="lb">Phí mỗi ảnh (đ) trừ vào tiền người dùng khi ghép ảnh</label><input class="inp money" id="mfee_a" inputmode="numeric" value="${S.mergeFee==null?'':Number(S.mergeFee).toLocaleString('vi-VN')}" placeholder="VD: 200"></div><p class="mgtip">Ví dụ: 1 ảnh 200đ, ghép 6 ảnh → người dùng bị trừ 1.200đ, số tiền cộng vào tài khoản admin. Admin ghép ảnh miễn phí. Nhập 0 để miễn phí cho tất cả.</p>${S.mergeFee==null?'<p class="mgtip" style="color:var(--rd)">Chưa có cài đặt phí ghép ảnh trong Supabase. Hãy chạy file supabase-update-6.sql trước.</p>':''}<button class="btn btn-gd btn-block" data-act="mfeesave">Lưu phí ghép ảnh</button></div><div class="box" style="max-width:460px;margin-top:14px"><h3>${svg('wallet')}Chiết khấu thẻ cào</h3><div class="fg"><label class="lb">Chiết khấu (%) trừ vào mệnh giá thẻ khi người dùng nạp thẻ</label><input class="inp" id="cfee_p" inputmode="decimal" value="${S.cardFee==null?'':S.cardFee}" placeholder="VD: 10"></div><p class="mgtip">Ví dụ: chiết khấu 10% → người dùng nạp thẻ 100.000đ chỉ nhận 90.000đ. Mức chiết khấu được chốt lúc người dùng gửi thẻ.</p>${S.cardFee==null?'<p class="mgtip" style="color:var(--rd)">Chưa có cài đặt chiết khấu trong Supabase. Hãy chạy file supabase-update-7.sql trước.</p>':''}<button class="btn btn-gd btn-block" data-act="cfeesave">Lưu chiết khấu thẻ</button></div>`}
   if(t==='wd'){
     if(!S.wdOk)B.innerHTML='<div class="note"><i data-ic="info"></i><span>Chưa có bảng rút tiền trong Supabase. Hãy chạy file <b>supabase-update-5.sql</b> rồi tải lại trang.</span></div>';
     else{
@@ -980,9 +1009,10 @@ function renderAdmin(){
       B.innerHTML=(pendW.length?`<div class="tbl-w"><table class="tbl">${head}<tbody>${pendW.map(w=>row(w,true)).join('')}</tbody></table></div>`:'<div class="empty">Không có yêu cầu rút tiền nào chờ duyệt.</div>')+`<h3 style="margin:22px 0 10px">Đã xử lý gần đây</h3>`+(done.length?`<div class="tbl-w"><table class="tbl">${head}<tbody>${done.map(w=>row(w,false)).join('')}</tbody></table></div>`:'<div class="empty">Chưa có yêu cầu nào được xử lý.</div>');
     }
   }
+  if(t==='chat'){B.innerHTML=chatAdminHtml();updateChat()}
   if(t==='nap')B.innerHTML=`<div class="box" style="max-width:460px"><h3>${svg('wallet')}Cộng tiền khi nhận chuyển khoản</h3><div class="fg"><label class="lb">Nội dung CK của khách (hoặc tên hiển thị)</label><input class="inp mono" id="n_k" placeholder="VD: NAPK7M2QX"></div><div class="fg"><label class="lb">Số tiền đã nhận (VNĐ)</label><input class="inp money" id="n_m" inputmode="numeric" placeholder="0"></div><button class="btn btn-gd btn-block" data-act="credit">Xác nhận cộng tiền</button></div>`;
-  if(t==='card')B.innerHTML=pend.length?`<div class="tbl-w"><table class="tbl"><thead><tr><th>Thời gian</th><th>Tài khoản</th><th>Thẻ</th><th>Seri</th><th>Mã thẻ</th><th></th></tr></thead><tbody>${pend.map(c=>`<tr><td style="color:var(--mu)">${dtf(c.created_at)}</td><td>${esc(c.username)}</td><td>${esc(c.telco)} ${vnd(c.amount)}</td><td class="mono">${esc(c.serial)} ${cp(c.serial)}</td><td class="mono">${esc(c.pin)} ${cp(c.pin)}</td><td><button class="btn btn-gd sm" data-act="ap" data-id="${c.id}">Duyệt</button> <button class="btn btn-ol sm" style="color:var(--rd)" data-act="rj" data-id="${c.id}">Từ chối</button></td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">Không có thẻ chờ duyệt.</div>';
-  if(t==='users')B.innerHTML=`<div class="tbl-w"><table class="tbl"><thead><tr><th>Tên</th><th>Họ tên</th><th>SĐT</th><th>Email</th><th>Nội dung nạp</th><th>Số dư</th><th>Quyền</th><th></th></tr></thead><tbody>${S.users.map(u=>`<tr><td><b>${esc(u.username)}</b></td><td>${esc(u.full_name)}</td><td>${esc(u.phone)}</td><td>${esc(u.email)}</td><td class="mono">${esc(u.topup_code)} ${cp(u.topup_code)}</td><td style="color:var(--gd);font-weight:700">${vnd(u.balance)}</td><td>${u.role}</td><td>${u.role==='admin'?'':`<button class="btn btn-ol sm" style="color:var(--rd)" data-act="du" data-id="${u.id}">${svg('trash')}Xóa</button>`}</td></tr>`).join('')}</tbody></table></div>`;
+  if(t==='card')B.innerHTML=pend.length?`<div class="tbl-w"><table class="tbl"><thead><tr><th>Thời gian</th><th>Tài khoản</th><th>Thẻ</th><th>Seri</th><th>Mã thẻ</th><th></th></tr></thead><tbody>${pend.map(c=>`<tr><td style="color:var(--mu)">${dtf(c.created_at)}</td><td>${esc(c.username)}</td><td>${esc(c.telco)} ${vnd(c.amount)}<br><small style="color:var(--gd)">Nhận ${vnd(c.received==null?c.amount:c.received)}${c.fee_percent>0?' (CK '+c.fee_percent+'%)':''}</small></td><td class="mono">${esc(c.serial)} ${cp(c.serial)}</td><td class="mono">${esc(c.pin)} ${cp(c.pin)}</td><td><button class="btn btn-gd sm" data-act="ap" data-id="${c.id}">Duyệt</button> <button class="btn btn-ol sm" style="color:var(--rd)" data-act="rj" data-id="${c.id}">Từ chối</button></td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">Không có thẻ chờ duyệt.</div>';
+  if(t==='users')B.innerHTML=`<div class="tbl-w"><table class="tbl"><thead><tr><th>Tên</th><th>Họ tên</th><th>SĐT</th><th>Email</th><th>Nội dung nạp</th><th>Số dư</th><th>Quyền</th><th></th></tr></thead><tbody>${S.users.map(u=>`<tr><td><b>${esc(u.username)}</b></td><td>${esc(u.full_name)}</td><td>${esc(u.phone)}</td><td>${esc(u.email)}</td><td class="mono">${esc(u.topup_code)} ${cp(u.topup_code)}</td><td style="color:var(--gd);font-weight:700">${vnd(u.balance)}</td><td>${u.role}</td><td>${u.role==='admin'?'':`<button class="btn btn-ol sm" data-act="chatuser" data-id="${u.id}" title="Nhắn tin">💬</button> <button class="btn btn-ol sm" style="color:var(--rd)" data-act="du" data-id="${u.id}">${svg('trash')}Xóa</button>`}</td></tr>`).join('')}</tbody></table></div>`;
   if(t==='qr')B.innerHTML=`<div class="box" style="max-width:460px"><h3>${svg('bank')}Mã QR &amp; thông tin ngân hàng</h3>${S.bank.qr_url?`<img class="qrimg" src="${esc(S.bank.qr_url)}" alt="QR">`:''}<div class="fg"><label class="lb">Tải ảnh QR</label><input class="inp" id="q_f" type="file" accept="image/*"></div><div class="fg"><label class="lb">Thông tin ngân hàng (mỗi dòng một mục)</label><textarea class="inp" id="q_i" rows="4" placeholder="Ngân hàng: MB Bank&#10;Số TK: ...&#10;Chủ TK: ...">${esc(S.bank.info)}</textarea></div><button class="btn btn-gd btn-block" data-act="qr">Lưu</button></div>`;
 }
 const apBadge=a=>a.approval==='pending'?'<span class="st-b st-wt">Chờ duyệt</span>':a.approval==='rejected'?'<span class="st-b st-er">Bị từ chối</span>':'<span class="st-b st-ok">Đã duyệt</span>';
@@ -1033,6 +1063,10 @@ const actHandler=async e=>{
     if(act==='edit'){S.edit=id;S.aTab='acc';if(S.view==='sell')renderSell();else renderAdmin();return window.scrollTo({top:0,behavior:'smooth'})}
     if(act==='mfeesave'){if($('#mfee_a').value.trim()==='')return toast('Nhập phí mỗi ảnh (đ), nhập 0 nếu miễn phí','var(--rd)');const v=Number(String($('#mfee_a').value).replace(/\D/g,''));
       chk(await sb.from('settings').upsert({key:'merge_fee',value:{amount:v},updated_at:new Date().toISOString()}));await refresh();toast('Đã lưu phí ghép ảnh '+vnd(v)+' mỗi ảnh','var(--ok)');return}
+    if(act==='cfeesave'){const v=Number(String($('#cfee_p').value).replace(',','.'));if($('#cfee_p').value.trim()===''||isNaN(v)||v<0||v>100)return toast('Nhập chiết khấu từ 0 đến 100 (%)','var(--rd)');
+      chk(await sb.from('settings').upsert({key:'card_fee',value:{percent:Math.round(v*100)/100},updated_at:new Date().toISOString()}));await refresh();toast('Đã lưu chiết khấu thẻ '+S.cardFee+'%','var(--ok)');return}
+    if(act==='chatuser'){S.chatUser=id;S.aTab='chat';renderAdmin();return}
+    if(act==='chatback'){S.chatUser=null;renderAdmin();return}
     if(act==='feesave'){const v=Number(String($('#fee_p').value).replace(',','.'));if($('#fee_p').value.trim()===''||isNaN(v)||v<0||v>100)return toast('Nhập phí từ 0 đến 100 (%)','var(--rd)');
       chk(await sb.from('settings').upsert({key:'fee',value:{percent:Math.round(v*100)/100},updated_at:new Date().toISOString()}));await refresh();toast('Đã lưu phí '+S.fee+'%','var(--ok)');return}
     if(act==='wdok'){const w=S.wds.find(x=>x.id===id);if(!w)return;if(!confirm('Xác nhận bạn ĐÃ chuyển '+vnd(w.amount)+' cho '+w.account_name+' ('+w.bank_name+' '+w.account_number+')?'))return;
@@ -1381,12 +1415,95 @@ $('#fWd').onsubmit=async e=>{
   btn.disabled=false;
 };
 
+/* ---------- chat với admin ---------- */
+const NM={seen:null};let tmM=null,mrBusy=false;
+const chatName=id=>{const u=S.users.find(x=>x.id===id);return u?u.username:'người dùng'};
+const myUnread=()=>S.me?S.msgs.filter(m=>!m.read_at&&m.sender_role===(isA()?'user':'admin')):[];
+const chatUnread=()=>myUnread().length;
+function updFab(){
+  const fb=$('#fab');if(!fb)return;const cn=chatUnread();
+  fb.style.display=(S.me&&S.view!=='chat'&&!(isA()&&S.view==='admin'&&S.aTab==='chat'))?'grid':'none';
+  const fn=$('#fabN');if(fn){fn.style.display=cn?'':'none';fn.textContent=nFmt(cn)}
+}
+$('#fab').onclick=()=>{if(!S.me)return go('login');if(isA()){S.aTab='chat';S.chatUser=null;S.edit=null;go('admin')}else go('chat')};
+function bubbles(thread,adminSide){
+  const L=S.msgs.filter(m=>m.thread_user===thread);
+  return L.length?L.map(m=>{const mine=adminSide?m.sender_role==='admin':m.sender_role==='user';return `<div class="msg ${mine?'me':'ot'}"><div class="mb">${esc(m.body).replace(/\n/g,'<br>')}</div><small>${dtf(m.created_at)}${mine&&m.read_at?' · Đã xem':''}</small></div>`}).join(''):'<div class="empty" style="margin:auto">Chưa có tin nhắn. Hãy nhắn cho '+(adminSide?'người dùng':'admin')+' nhé!</div>';
+}
+function fillList(el,html){if(!el)return;const near=el.scrollHeight-el.scrollTop-el.clientHeight<90,first=!el.dataset.f;el.innerHTML=html;if(near||first){el.scrollTop=el.scrollHeight;el.dataset.f='1'}}
+function convListHtml(){
+  const g={};S.msgs.forEach(m=>{(g[m.thread_user]=g[m.thread_user]||[]).push(m)});
+  const rows=Object.keys(g).map(id=>{const a=g[id];return {id:id,last:a[a.length-1],un:a.filter(m=>!m.read_at&&m.sender_role==='user').length}}).sort((x,y)=>new Date(y.last.created_at)-new Date(x.last.created_at));
+  return rows.length?rows.map(r=>`<div class="conv" data-conv="${r.id}"><span class="ava2">${esc(chatName(r.id)[0].toUpperCase())}</span><div style="flex:1;min-width:0"><b>${esc(chatName(r.id))}</b><small style="display:block;color:var(--mu);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.last.sender_role==='admin'?'Bạn: ':''}${esc(r.last.body)}</small></div><div style="text-align:right;flex:none"><small style="color:var(--mu);font-size:11px">${dtf(r.last.created_at).slice(0,5)}</small>${r.un?`<div><i class="nb" style="margin:0">${nFmt(r.un)}</i></div>`:''}</div></div>`).join(''):'<div class="empty" style="padding:30px">Chưa có cuộc trò chuyện nào. Vào tab Người dùng và bấm 💬 để nhắn cho một người dùng.</div>';
+}
+function chatAdminHtml(){
+  if(!S.chatOk)return '<div class="note"><i data-ic="info"></i><span>Chưa có chức năng chat trong Supabase. Hãy chạy file <b>supabase-update-7.sql</b> rồi tải lại trang.</span></div>';
+  if(!S.chatUser)return '<div class="box" style="padding:0;max-width:720px;margin:0 auto;overflow:hidden"><div id="convWrap"></div></div>';
+  const u=S.users.find(x=>x.id===S.chatUser);
+  return `<div class="box chatbox" id="convWrap"><div style="display:flex;gap:10px;align-items:center;padding:10px 14px;border-bottom:1px solid var(--bd)"><button class="btn btn-ol sm" data-act="chatback">‹ Danh sách</button><b>${esc(u?u.username:'Người dùng')}</b>${u?`<small style="color:var(--mu)">${esc(u.email)}</small>`:''}</div><div class="chatlist" id="chatListA"></div><form class="chatform" id="fChatA"><textarea class="inp" id="chatInA" rows="1" placeholder="Nhập tin nhắn... (Enter để gửi)" maxlength="2000"></textarea><button class="btn btn-gd" type="submit">Gửi</button></form></div>`;
+}
+function updateChat(){
+  if(!S.me)return;
+  if(S.view==='chat'&&!isA()){
+    fillList($('#chatList'),S.chatOk?bubbles(S.me.id,false):'<div class="empty" style="margin:auto">Chức năng chat chưa được bật (admin cần chạy file supabase-update-7.sql).</div>');
+    markRead(S.me.id);
+  }else if(S.view==='admin'&&S.aTab==='chat'&&isA()){
+    if(S.chatUser){fillList($('#chatListA'),bubbles(S.chatUser,true));markRead(S.chatUser)}
+    else{const w=$('#convWrap');if(w)w.innerHTML=convListHtml()}
+  }
+  updFab();
+}
+async function markRead(thread){
+  const un=S.msgs.filter(m=>m.thread_user===thread&&!m.read_at&&m.sender_role===(isA()?'user':'admin'));
+  if(!un.length||mrBusy||document.hidden||!sb)return;
+  mrBusy=true;
+  try{chk(await sb.rpc('mark_read',{p_thread:thread}));const now=new Date().toISOString();un.forEach(m=>m.read_at=now);renderHeader();renderNotif();if(S.view==='admin'&&S.aTab==='chat'&&!S.chatUser)updateChat()}catch(e){}
+  mrBusy=false;
+}
+async function sendChat(thread,el){
+  const body=el.value.trim();if(!body||!thread||!sb)return;
+  el.disabled=true;
+  try{chk(await sb.from('messages').insert({thread_user:thread,sender_id:S.me.id,sender_role:isA()?'admin':'user',body:body}));el.value='';await refreshMsgs()}
+  catch(e){toast(viErr(e.message||String(e)),'var(--rd)')}
+  el.disabled=false;el.focus();
+}
+async function refreshMsgs(){
+  if(!sb||!S.me)return;
+  const r=await sb.from('messages').select('*').order('created_at',{ascending:false}).limit(1000);
+  if(r.error)return;
+  S.chatOk=true;S.msgs=(r.data||[]).slice().reverse();checkMsgNotif();renderHeader();renderNotif();updateChat();
+}
+function msgLive(){clearTimeout(tmM);tmM=setTimeout(refreshMsgs,250)}
+function checkMsgNotif(){
+  if(!S.me){NM.seen=null;return}
+  const un=myUnread(),ids=new Set(un.map(m=>m.id));
+  if(NM.seen){
+    const fresh=un.filter(m=>!NM.seen.has(m.id));
+    if(fresh.length){
+      const f=fresh[fresh.length-1],who=isA()?chatName(f.thread_user):'Admin';
+      const viewing=!document.hidden&&((S.view==='chat'&&!isA())||(S.view==='admin'&&S.aTab==='chat'&&S.chatUser===f.thread_user));
+      if(!viewing){
+        NT.ring=true;toast('💬 '+who+': '+f.body.slice(0,60),'var(--gd)');beep();
+        try{if('Notification' in window&&Notification.permission==='granted'&&document.hidden)new Notification('Tin nhắn mới từ '+who,{body:f.body.slice(0,120)})}catch(e){}
+      }
+    }
+  }
+  NM.seen=ids;
+}
+document.addEventListener('click',e=>{const c=e.target.closest('[data-conv]');if(c){S.chatUser=c.dataset.conv;renderAdmin()}});
+document.addEventListener('submit',e=>{
+  if(e.target.id==='fChat'){e.preventDefault();sendChat(S.me.id,$('#chatIn'))}
+  if(e.target.id==='fChatA'){e.preventDefault();sendChat(S.chatUser,$('#chatInA'))}
+});
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey&&(e.target.id==='chatIn'||e.target.id==='chatInA')){e.preventDefault();e.target.form.requestSubmit()}});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)updateChat()});
+
 /* ---------- khởi động ---------- */
 S.m=newMerge();paintIcons();renderAmts();go('home');renderCats();renderStats();renderGrid();renderBank();
 if(sb){
   sb.auth.onAuthStateChange(ev=>{setTimeout(async()=>{await refresh();if(ev==='PASSWORD_RECOVERY')openRecover()},0)});
   let tm;const live=()=>{clearTimeout(tm);tm=setTimeout(()=>refresh(true),500)};
-  try{sb.channel('live').on('postgres_changes',{event:'*',schema:'public',table:'accounts'},live).on('postgres_changes',{event:'*',schema:'public',table:'card_topups'},live).on('postgres_changes',{event:'*',schema:'public',table:'transactions'},live).on('postgres_changes',{event:'*',schema:'public',table:'withdrawals'},live).subscribe()}catch(e){}
+  try{sb.channel('live').on('postgres_changes',{event:'*',schema:'public',table:'accounts'},live).on('postgres_changes',{event:'*',schema:'public',table:'card_topups'},live).on('postgres_changes',{event:'*',schema:'public',table:'transactions'},live).on('postgres_changes',{event:'*',schema:'public',table:'withdrawals'},live).on('postgres_changes',{event:'*',schema:'public',table:'messages'},msgLive).subscribe()}catch(e){}
 }else{S.loaded=true;renderGrid();toast('Không tải được thư viện Supabase, hãy kiểm tra mạng','var(--rd)')}
 </script>
 </body>
