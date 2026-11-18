@@ -352,7 +352,7 @@ select.inp option{color:#fff;background:#0f1424}
 
 <header>
   <div class="wrap hd">
-    <div class="logo" data-go="home"><div class="gem" data-ic="crown"></div><span>LQ<b>SHOP</b></span></div>
+    <div class="logo" data-go="home"><div class="gem" data-ic="crown"></div><span><x-n data-brand="a">LQ</x-n><b data-brand="b">SHOP</b></span></div>
     <nav class="nav" aria-label="Điều hướng chính">
       <button data-go="home"><i data-ic="home"></i>Trang chủ</button>
       <button data-go="wheel"><i data-ic="gift"></i>Vòng quay</button>
@@ -424,7 +424,7 @@ select.inp option{color:#fff;background:#0f1424}
 
     <div class="sec two">
       <div class="box">
-        <h3><i data-ic="shield"></i>Vì sao chọn LQ Shop?</h3>
+        <h3><i data-ic="shield"></i>Vì sao chọn <x-n data-brand="full">LQ Shop</x-n>?</h3>
         <div class="feat">
           <div><i data-ic="zap"></i><b>Giao dịch tự động</b><small>Nhận tài khoản ngay sau 3 giây</small></div>
           <div><i data-ic="shield"></i><b>Bảo hành trọn đời</b><small>Lỗi acc hoàn tiền 100%</small></div>
@@ -449,8 +449,6 @@ select.inp option{color:#fff;background:#0f1424}
         <div class="fg"><label class="lb" for="lp">Mật khẩu</label><input class="inp" id="lp" type="password" placeholder="••••••••" autocomplete="current-password"><div class="err" id="eLp"></div></div>
         <div class="rowx"><label><input type="checkbox" checked> Ghi nhớ</label><span class="lnk" id="forgot">Quên mật khẩu?</span></div>
         <button class="btn btn-gd btn-block" type="submit"><i data-ic="login"></i>Đăng nhập</button>
-        <div class="or">hoặc tiếp tục với</div>
-        <div class="soc"><button type="button" class="btn btn-ol" data-demo>Facebook</button><button type="button" class="btn btn-ol" data-demo>Google</button></div>
         <p class="foot-t">Chưa có tài khoản? <span class="lnk" data-go="register">Đăng ký ngay</span></p>
       </form>
     </div>
@@ -459,7 +457,7 @@ select.inp option{color:#fff;background:#0f1424}
   <!-- REGISTER -->
   <section class="view" id="v-register">
     <div class="auth">
-      <div class="art"><img src="acc1.jpg" alt=""><div class="ct"><h3>Tham gia LQ Shop</h3><p>Mua acc nhanh, nạp tiền dễ dàng và theo dõi lịch sử ngay trên tài khoản.</p></div></div>
+      <div class="art"><img src="acc1.jpg" alt=""><div class="ct"><h3>Tham gia <x-n data-brand="full">LQ Shop</x-n></h3><p>Mua acc nhanh, nạp tiền dễ dàng và theo dõi lịch sử ngay trên tài khoản.</p></div></div>
       <form id="fReg" novalidate>
         <h2>Tạo tài khoản</h2><p class="sub">Chỉ mất 30 giây để bắt đầu</p>
         
@@ -603,11 +601,11 @@ select.inp option{color:#fff;background:#0f1424}
 <footer>
   <div class="wrap">
     <div class="ft">
-      <div><div class="logo" style="margin-bottom:10px"><div class="gem" data-ic="crown"></div><span style="color:var(--tx)">LQ<b>SHOP</b></span></div><p style="margin:0;max-width:380px">Hệ thống mua bán tài khoản Liên Quân Mobile tự động, uy tín và an toàn. Hoạt động 24/7.</p></div>
+      <div><div class="logo" style="margin-bottom:10px"><div class="gem" data-ic="crown"></div><span style="color:var(--tx)"><x-n data-brand="a">LQ</x-n><b data-brand="b">SHOP</b></span></div><p style="margin:0;max-width:380px">Hệ thống mua bán tài khoản Liên Quân Mobile tự động, uy tín và an toàn. Hoạt động 24/7.</p></div>
       <div><h4>Hỗ trợ</h4><ul><li>Hướng dẫn mua acc</li><li>Chính sách bảo hành</li><li>Câu hỏi thường gặp</li></ul></div>
-      <div><h4>Liên hệ</h4><ul><li>Hotline: 0389.xxx.999</li><li>Fanpage: LQ Shop</li><li>Zalo hỗ trợ 24/7</li></ul></div>
+      <div><h4>Liên hệ</h4><ul><li>Hotline: 0389.xxx.999</li><li>Fanpage: <x-n data-brand="full">LQ Shop</x-n></li><li>Zalo hỗ trợ 24/7</li></ul></div>
     </div>
-    <div class="copy">© 2026 LQ Shop. Giao diện demo.</div>
+    <div class="copy">© 2026 <x-n data-brand="full">LQ Shop</x-n>. Giao diện demo.</div>
   </div>
 </footer>
 
@@ -639,7 +637,7 @@ const SB_URL="https://dnjtfyviroswhyiipgwb.supabase.co",SB_KEY="sb_publishable_h
 const sb=window.supabase?window.supabase.createClient(SB_URL,SB_KEY):null;
 const RANKS=['Kim Cương','Tinh Anh','Cao Thủ','Chiến Tướng','Thách Đấu'],CATS=['VIP','Random','Trắng TT','Giá rẻ'],GAME='Liên Quân Mobile';
 const DEF_CATS=[{id:'d1',name:'VIP',description:'Full skin SSS, rank Thách Đấu',image_url:'acc1.jpg'},{id:'d2',name:'Random',description:'Thử vận may chỉ từ 20K',image_url:'acc2.jpg'},{id:'d3',name:'Trắng TT',description:'Đổi được SĐT, email',image_url:'acc3.jpg'},{id:'d4',name:'Giá rẻ',description:'Dưới 200K, nhiều tướng',image_url:'acc4.jpg'}],DEF_RANKS=RANKS.map((n,i)=>({id:'r'+i,name:n}));
-const S={msgs:[],chatOk:false,chatUser:null,cardFee:null,mergeFee:null,wds:[],wdOk:false,fee:null,m:null,pendingImg:null,pendingFill:null,dirty:false,cats:DEF_CATS,ranks:DEF_RANKS,catsOk:false,catEdit:null,me:null,members:null,accs:[],sec:{},buys:[],txns:[],cards:[],users:[],bank:{},cat:'',amt:50000,view:'home',hTab:'buy',aTab:'acc',edit:null,loaded:false};
+const S={recent:[],site:null,msgs:[],chatOk:false,chatUser:null,cardFee:null,mergeFee:null,wds:[],wdOk:false,fee:null,m:null,pendingImg:null,pendingFill:null,dirty:false,cats:DEF_CATS,ranks:DEF_RANKS,catsOk:false,catEdit:null,me:null,members:null,accs:[],sec:{},buys:[],txns:[],cards:[],users:[],bank:{},cat:'',amt:50000,view:'home',hTab:'buy',aTab:'acc',edit:null,loaded:false};
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const chk=r=>{if(r.error)throw r.error;return r.data};
 const isA=()=>!!S.me&&S.me.role==='admin';
@@ -662,8 +660,8 @@ async function refresh(soft){
   if(!sb){S.loaded=true;renderAll();return}
   try{
     const s=(await sb.auth.getSession()).data.session,uid=s&&s.user.id;
-    const [ra,rb,rc,rcat,rrk]=await Promise.all([sb.from('accounts').select('*').order('created_at',{ascending:false}),sb.from('settings').select('key,value').in('key',['bank','fee','merge_fee','card_fee']),sb.rpc('member_count'),sb.from('categories').select('*').order('sort').order('created_at'),sb.from('ranks').select('*').order('sort').order('created_at')]);
-    S.catsOk=!rcat.error&&!rrk.error;S.cats=rcat.error?DEF_CATS:(rcat.data||[]);S.ranks=rrk.error?DEF_RANKS:(rrk.data||[]);S.accs=ra.data||[];{const st={};(rb.data||[]).forEach(x=>st[x.key]=x.value);S.bank=st.bank||{};S.fee=st.fee&&st.fee.percent!=null?Number(st.fee.percent):null;S.mergeFee=st.merge_fee&&st.merge_fee.amount!=null?Number(st.merge_fee.amount):null;S.cardFee=st.card_fee&&st.card_fee.percent!=null?Number(st.card_fee.percent):null}S.members=rc.error||rc.data==null?null:Number(rc.data);S.me=null;S.sec={};S.buys=[];S.txns=[];S.cards=[];S.users=[];S.wds=[];S.msgs=[];
+    const [ra,rb,rc,rcat,rrk]=await Promise.all([sb.from('accounts').select('*').order('created_at',{ascending:false}),sb.from('settings').select('key,value').in('key',['bank','fee','merge_fee','card_fee','site']),sb.rpc('member_count'),sb.from('categories').select('*').order('sort').order('created_at'),sb.from('ranks').select('*').order('sort').order('created_at')]);
+    S.catsOk=!rcat.error&&!rrk.error;S.cats=rcat.error?DEF_CATS:(rcat.data||[]);S.ranks=rrk.error?DEF_RANKS:(rrk.data||[]);S.accs=ra.data||[];{const st={};(rb.data||[]).forEach(x=>st[x.key]=x.value);S.bank=st.bank||{};S.fee=st.fee&&st.fee.percent!=null?Number(st.fee.percent):null;S.mergeFee=st.merge_fee&&st.merge_fee.amount!=null?Number(st.merge_fee.amount):null;S.cardFee=st.card_fee&&st.card_fee.percent!=null?Number(st.card_fee.percent):null;S.site=st.site||null}S.members=rc.error||rc.data==null?null:Number(rc.data);S.me=null;S.sec={};S.buys=[];S.txns=[];S.cards=[];S.users=[];S.wds=[];S.msgs=[];
     if(uid){
       const q=await Promise.all([
         sb.from('profiles').select('*').eq('id',uid).maybeSingle(),
@@ -676,10 +674,10 @@ async function refresh(soft){
       if(S.me&&S.me.role==='admin')S.users=(await sb.from('profiles').select('*').order('created_at',{ascending:false})).data||[];
     }
   }catch(e){}
-  S.loaded=true;checkNotif();checkMsgNotif();renderAll(soft);
+  S.loaded=true;checkNotif();checkMsgNotif();loadRecent();renderAll(soft);
 }
 function renderAll(soft){
-  renderHeader();renderNotif();renderCats();renderAmts();renderStats();renderGrid();renderBank();
+  applySite();renderHeader();renderNotif();renderCats();renderAmts();renderStats();renderGrid();renderBank();
   if(S.view==='history')renderHist();
   if(S.view==='profile'&&!(soft&&typing()))renderProfile();
   if(S.view==='withdraw'&&!(soft&&typing()))renderWd();
@@ -692,7 +690,9 @@ function renderAll(soft){
 
 /* ---------- header / điều hướng ---------- */
 /* ---------- thông báo cho admin ---------- */
-const NT={seen:null,ring:false},BASE_TITLE=document.title;
+const NT={seen:null,ring:false};let BASE_TITLE=document.title;
+const siteDef={a:'LQ',b:'SHOP',full:'LQ Shop'},siteVal=k=>(S.site&&S.site[k]!=null&&S.site[k]!=='')?S.site[k]:siteDef[k];
+function applySite(){$$('[data-brand]').forEach(el=>{el.textContent=siteVal(el.dataset.brand)});BASE_TITLE=siteVal('full')+' - Shop Acc Liên Quân Uy Tín';renderTicker()}
 const nSound=()=>{try{return localStorage.getItem('nSound')!=='0'}catch(e){return true}};
 const nFmt=n=>n>99?'99+':String(n);
 function notifList(){return {card:S.cards.filter(c=>c.status==='pending'),wd:S.wds.filter(w=>w.status==='pending'),acc:S.accs.filter(a=>a.approval==='pending'),chat:S.msgs.filter(m=>!m.read_at&&m.sender_role==='user')}}
@@ -769,8 +769,18 @@ document.addEventListener('click',e=>{
 $('#logout').onclick=async()=>{await sb.auth.signOut();S.me=null;await refresh();go('home');toast('Đã đăng xuất')};
 
 /* ---------- ticker (nội dung mẫu) ---------- */
-const NAMES=['duy***99','minh***x','hoang***','tuan***vn','khanh***','long***pro','an***2k','phuc***'];
-$('#ticker').innerHTML=[0,1].map(()=>NAMES.map((n,i)=>`<span>${svg('cart')} <b>${n}</b> vừa mua acc <em>LQ${48210+i*37}</em> giá ${vnd((i+2)*120000)}</span>`).join('')).join('');
+function renderTicker(){
+  const el=$('#ticker');if(!el)return;
+  const sp=S.recent.slice(0,5).map(r=>`<span>${svg('cart')} <b>${esc(r.username)}</b> vừa mua acc ${r.account_code?`<em>#${esc(r.account_code)}</em> `:''}giá <em>${vnd(r.price)}</em></span>`);
+  const base=sp.length?sp:[`<span>${svg('cart')} Chào mừng bạn đến với <b>${esc(siteVal('full'))}</b> – mua acc nhanh, giao dịch uy tín</span>`];
+  let half=[];while(half.length<6)half=half.concat(base);
+  el.innerHTML=[half,half].map(h=>h.join('')).join('');
+}
+async function loadRecent(){
+  if(!sb)return;
+  try{const r=await sb.rpc('recent_purchases',{p_limit:5});if(!r.error&&Array.isArray(r.data)){S.recent=r.data;renderTicker()}}catch(e){}
+}
+setInterval(loadRecent,60000);
 
 /* ---------- danh sách acc ---------- */
 $('#chips').onclick=e=>{const b=e.target.closest('.chip');if(!b)return;S.cat=b.dataset.c;$$('.chip').forEach(x=>x.classList.toggle('on',x===b));renderGrid()};
@@ -995,7 +1005,7 @@ async function saveCat(btn){
 }
 function renderAdmin(){
   if(!isA())return;S.dirty=false;
-  const T=[['acc',S.edit?'Sửa acc':'Đăng acc'],['list','Quản lý acc'],['pend','Duyệt acc'],['nap','Cộng tiền'],['card','Duyệt thẻ'],['wd','Rút tiền'],['chat','Chat'],['users','Người dùng'],['cats','Danh mục & Rank'],['fee','Phí'],['qr','Cài QR']],pend=S.cards.filter(c=>c.status==='pending'),pendA=S.accs.filter(a=>a.approval==='pending'),pendW=S.wds.filter(w=>w.status==='pending'),chatUn=S.msgs.filter(m=>!m.read_at&&m.sender_role==='user').length,t=S.aTab;
+  const T=[['acc',S.edit?'Sửa acc':'Đăng acc'],['list','Quản lý acc'],['pend','Duyệt acc'],['nap','Cộng tiền'],['card','Duyệt thẻ'],['wd','Rút tiền'],['chat','Chat'],['users','Người dùng'],['cats','Danh mục & Rank'],['fee','Phí'],['qr','Cài đặt']],pend=S.cards.filter(c=>c.status==='pending'),pendA=S.accs.filter(a=>a.approval==='pending'),pendW=S.wds.filter(w=>w.status==='pending'),chatUn=S.msgs.filter(m=>!m.read_at&&m.sender_role==='user').length,t=S.aTab;
   $('#aTabs').innerHTML=T.map(([k,l])=>`<button class="${t===k?'on':''}" data-at="${k}">${l}${k==='card'&&pend.length?`<i class="nb">${pend.length}</i>`:''}${k==='wd'&&pendW.length?`<i class="nb">${pendW.length}</i>`:''}${k==='pend'&&pendA.length?`<i class="nb">${pendA.length}</i>`:''}${k==='chat'&&chatUn?`<i class="nb">${chatUn}</i>`:''}</button>`).join('');
   const B=$('#aBody');
   if(t==='acc'){B.innerHTML=accForm();pvDisc();applyPending()}
@@ -1016,7 +1026,7 @@ function renderAdmin(){
   if(t==='nap')B.innerHTML=`<div class="box" style="max-width:460px"><h3>${svg('wallet')}Cộng tiền khi nhận chuyển khoản</h3><div class="fg"><label class="lb">Nội dung CK của khách (hoặc tên hiển thị)</label><input class="inp mono" id="n_k" placeholder="VD: NAPK7M2QX"></div><div class="fg"><label class="lb">Số tiền đã nhận (VNĐ)</label><input class="inp money" id="n_m" inputmode="numeric" placeholder="0"></div><button class="btn btn-gd btn-block" data-act="credit">Xác nhận cộng tiền</button></div>`;
   if(t==='card')B.innerHTML=pend.length?`<div class="tbl-w"><table class="tbl"><thead><tr><th>Thời gian</th><th>Tài khoản</th><th>Thẻ</th><th>Seri</th><th>Mã thẻ</th><th></th></tr></thead><tbody>${pend.map(c=>`<tr><td style="color:var(--mu)">${dtf(c.created_at)}</td><td>${esc(c.username)}</td><td>${esc(c.telco)} ${vnd(c.amount)}<br><small style="color:var(--gd)">Nhận ${vnd(c.received==null?c.amount:c.received)}${c.fee_percent>0?' (CK '+c.fee_percent+'%)':''}</small></td><td class="mono">${esc(c.serial)} ${cp(c.serial)}</td><td class="mono">${esc(c.pin)} ${cp(c.pin)}</td><td><button class="btn btn-gd sm" data-act="ap" data-id="${c.id}">Duyệt</button> <button class="btn btn-ol sm" style="color:var(--rd)" data-act="rj" data-id="${c.id}">Từ chối</button></td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">Không có thẻ chờ duyệt.</div>';
   if(t==='users')B.innerHTML=`<div class="tbl-w"><table class="tbl"><thead><tr><th>Tên</th><th>Họ tên</th><th>SĐT</th><th>Email</th><th>Nội dung nạp</th><th>Số dư</th><th>Quyền</th><th></th></tr></thead><tbody>${S.users.map(u=>`<tr><td><b>${esc(u.username)}</b></td><td>${esc(u.full_name)}</td><td>${esc(u.phone)}</td><td>${esc(u.email)}</td><td class="mono">${esc(u.topup_code)} ${cp(u.topup_code)}</td><td style="color:var(--gd);font-weight:700">${vnd(u.balance)}</td><td>${u.role}</td><td>${u.role==='admin'?'':`<button class="btn btn-ol sm" data-act="chatuser" data-id="${u.id}" title="Nhắn tin">💬</button> <button class="btn btn-ol sm" style="color:var(--rd)" data-act="du" data-id="${u.id}">${svg('trash')}Xóa</button>`}</td></tr>`).join('')}</tbody></table></div>`;
-  if(t==='qr')B.innerHTML=`<div class="box" style="max-width:460px"><h3>${svg('bank')}Mã QR &amp; thông tin ngân hàng</h3>${S.bank.qr_url?`<img class="qrimg" src="${esc(S.bank.qr_url)}" alt="QR">`:''}<div class="fg"><label class="lb">Tải ảnh QR</label><input class="inp" id="q_f" type="file" accept="image/*"></div><div class="fg"><label class="lb">Thông tin ngân hàng (mỗi dòng một mục)</label><textarea class="inp" id="q_i" rows="4" placeholder="Ngân hàng: MB Bank&#10;Số TK: ...&#10;Chủ TK: ...">${esc(S.bank.info)}</textarea></div><button class="btn btn-gd btn-block" data-act="qr">Lưu</button></div>`;
+  if(t==='qr')B.innerHTML=`<div class="box" style="max-width:460px"><h3>${svg('bank')}Mã QR &amp; thông tin ngân hàng</h3>${S.bank.qr_url?`<img class="qrimg" src="${esc(S.bank.qr_url)}" alt="QR">`:''}<div class="fg"><label class="lb">Tải ảnh QR</label><input class="inp" id="q_f" type="file" accept="image/*"></div><div class="fg"><label class="lb">Thông tin ngân hàng (mỗi dòng một mục)</label><textarea class="inp" id="q_i" rows="4" placeholder="Ngân hàng: MB Bank&#10;Số TK: ...&#10;Chủ TK: ...">${esc(S.bank.info)}</textarea></div><button class="btn btn-gd btn-block" data-act="qr">Lưu</button></div><div class="box" style="max-width:460px;margin-top:14px"><h3>${svg('crown')}Tên website</h3><div class="fgrid"><div class="fg"><label class="lb">Chữ trắng (VD: LQ)</label><input class="inp" id="site_a" maxlength="20" value="${esc(siteVal('a'))}"></div><div class="fg"><label class="lb">Chữ vàng (VD: SHOP)</label><input class="inp" id="site_b" maxlength="20" value="${esc(siteVal('b'))}"></div></div><div class="fg"><label class="lb">Tên đầy đủ (dùng ở tiêu đề tab, chân trang, chữ chạy)</label><input class="inp" id="site_f" maxlength="40" value="${esc(siteVal('full'))}"></div><p class="mgtip">Logo trên đầu trang hiện "chữ trắng + chữ vàng", ví dụ LQ + SHOP thành LQSHOP.</p><button class="btn btn-gd btn-block" data-act="sitesave">Lưu tên website</button></div>`;
 }
 const apBadge=a=>a.approval==='pending'?'<span class="st-b st-wt">Chờ duyệt</span>':a.approval==='rejected'?'<span class="st-b st-er">Bị từ chối</span>':'<span class="st-b st-ok">Đã duyệt</span>';
 function reviewCard(a){
@@ -1070,6 +1080,9 @@ const actHandler=async e=>{
       chk(await sb.from('settings').upsert({key:'card_fee',value:{percent:Math.round(v*100)/100},updated_at:new Date().toISOString()}));await refresh();toast('Đã lưu chiết khấu thẻ '+S.cardFee+'%','var(--ok)');return}
     if(act==='chatuser'){S.chatUser=id;S.aTab='chat';renderAdmin();return}
     if(act==='chatback'){S.chatUser=null;renderAdmin();return}
+    if(act==='sitesave'){const a=$('#site_a').value.trim(),b=$('#site_b').value.trim(),full=$('#site_f').value.trim();
+      if(!(a||b))return toast('Nhập tên website','var(--rd)');
+      chk(await sb.from('settings').upsert({key:'site',value:{a:a,b:b,full:full||(a+b)},updated_at:new Date().toISOString()}));await refresh();toast('Đã đổi tên website','var(--ok)');return}
     if(act==='feesave'){const v=Number(String($('#fee_p').value).replace(',','.'));if($('#fee_p').value.trim()===''||isNaN(v)||v<0||v>100)return toast('Nhập phí từ 0 đến 100 (%)','var(--rd)');
       chk(await sb.from('settings').upsert({key:'fee',value:{percent:Math.round(v*100)/100},updated_at:new Date().toISOString()}));await refresh();toast('Đã lưu phí '+S.fee+'%','var(--ok)');return}
     if(act==='wdok'){const w=S.wds.find(x=>x.id===id);if(!w)return;if(!confirm('Xác nhận bạn ĐÃ chuyển '+vnd(w.amount)+' cho '+w.account_name+' ('+w.bank_name+' '+w.account_number+')?'))return;
@@ -1502,7 +1515,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey&&(e.targ
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)updateChat()});
 
 /* ---------- khởi động ---------- */
-S.m=newMerge();paintIcons();renderAmts();go('home');renderCats();renderStats();renderGrid();renderBank();
+S.m=newMerge();paintIcons();renderTicker();renderAmts();go('home');renderCats();renderStats();renderGrid();renderBank();
 if(sb){
   sb.auth.onAuthStateChange(ev=>{setTimeout(async()=>{await refresh();if(ev==='PASSWORD_RECOVERY')openRecover()},0)});
   let tm;const live=()=>{clearTimeout(tm);tm=setTimeout(()=>refresh(true),500)};
