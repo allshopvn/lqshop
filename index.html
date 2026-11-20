@@ -586,7 +586,7 @@ select.inp option{color:#fff;background:#0f1424}
         <h3><i data-ic="wallet"></i>Yêu cầu rút tiền</h3>
         <p style="margin:0 0 14px">Số dư hiện tại: <b class="price" id="wdBal">0đ</b></p>
         <div class="fg"><label class="lb" for="wdA">Số tiền muốn rút (tối thiểu 10.000đ)</label><input class="inp money" id="wdA" inputmode="numeric" placeholder="10.000"><div class="err" id="eWdA"></div></div>
-        <div class="fg"><label class="lb" for="wdB">Ngân hàng</label><input class="inp" id="wdB" placeholder="VD: MB Bank, Vietcombank..."><div class="err" id="eWdB"></div></div>
+        <div class="fg"><label class="lb" for="wdBs">Ngân hàng / ví</label><select class="inp" id="wdBs"><option value="">-- Chọn ngân hàng hoặc ví --</option><optgroup label="Ví điện tử"><option>Ví MoMo</option></optgroup><optgroup label="Ngân hàng"><option>Vietcombank (VCB)</option><option>VietinBank (CTG)</option><option>BIDV</option><option>Agribank</option><option>MB Bank (MBBank)</option><option>Techcombank (TCB)</option><option>ACB</option><option>VPBank</option><option>TPBank</option><option>Sacombank</option><option>HDBank</option><option>VIB</option><option>SHB</option><option>OCB</option><option>MSB</option><option>SeABank</option><option>Eximbank</option><option>LPBank (LienVietPostBank)</option><option>Nam A Bank</option><option>ABBank</option><option>Bac A Bank</option><option>VietABank</option><option>PVcomBank</option><option>Cake by VPBank</option><option>Timo</option></optgroup><option value="__other">Khác (tự nhập tên)</option></select><input class="inp" id="wdB" placeholder="Nhập tên ngân hàng hoặc ví" style="display:none;margin-top:8px"><div class="err" id="eWdB"></div></div>
         <div class="fg"><label class="lb" for="wdN">Số tài khoản</label><input class="inp" id="wdN" inputmode="numeric" placeholder="Số tài khoản ngân hàng"><div class="err" id="eWdN"></div></div>
         <div class="fg"><label class="lb" for="wdO">Tên chủ tài khoản</label><input class="inp" id="wdO" placeholder="VD: NGUYEN VAN A"><div class="err" id="eWdO"></div></div>
         <div class="note"><i data-ic="info"></i><span>Số tiền được <b>trừ khỏi số dư ngay</b> khi gửi yêu cầu và ở trạng thái <b>Chờ duyệt</b>. Admin sẽ chuyển khoản thủ công rồi duyệt thành công. Nếu bị từ chối, tiền được hoàn lại vào số dư.</span></div>
@@ -1437,21 +1437,35 @@ document.addEventListener('input',e=>{if(e.target.closest&&e.target.closest('#aB
 document.addEventListener('change',e=>{if(e.target.closest&&e.target.closest('#aBody,#sBody'))S.dirty=true},true);
 
 /* ---------- rút tiền ---------- */
+const wdBank=()=>{const v=$('#wdBs').value;return v==='__other'?$('#wdB').value.trim():v};
+function wdBankUI(){
+  const v=$('#wdBs').value,mm=v==='Ví MoMo';
+  $('#wdB').style.display=v==='__other'?'':'none';
+  $('label[for=wdN]').textContent=mm?'Số điện thoại MoMo':'Số tài khoản';
+  $('#wdN').placeholder=mm?'VD: 0912345678':'Số tài khoản ngân hàng';
+  $('label[for=wdO]').textContent=mm?'Tên chủ ví MoMo':'Tên chủ tài khoản';
+}
+document.addEventListener('change',e=>{if(e.target.id==='wdBs'){wdBankUI();setErr('#eWdB','')}});
+document.addEventListener('input',e=>{if(e.target.id==='wdB')setErr('#eWdB','')});
 function renderWd(){
   if(!S.me)return;
   $('#wdBal').textContent=vnd(S.me.balance);
   const L=S.wds.filter(w=>w.user_id===S.me.id);
   $('#wdTbl').innerHTML=S.wdOk?`<thead><tr><th>Thời gian</th><th>Số tiền</th><th>Nhận tại</th><th>Trạng thái</th></tr></thead><tbody>${L.length?L.map(w=>`<tr><td style="color:var(--mu)">${dtf(w.created_at)}</td><td style="color:var(--gd);font-weight:700">${vnd(w.amount)}</td><td style="white-space:normal;min-width:150px">${esc(w.bank_name)}<br><span class="mono">${esc(w.account_number)}</span><br>${esc(w.account_name)}</td><td><span class="st-b ${w.status==='approved'?'st-ok':w.status==='rejected'?'st-er':'st-wt'}">${w.status==='approved'?'Thành công':w.status==='rejected'?'Bị từ chối':'Chờ duyệt'}</span>${w.status==='rejected'&&w.admin_note?`<div class="sd-t" style="white-space:normal;font-size:12px">Lý do: ${esc(w.admin_note)}</div>`:''}</td></tr>`).join(''):'<tr><td colspan="4" style="text-align:center;padding:30px;color:var(--mu)">Chưa có yêu cầu rút tiền nào</td></tr>'}</tbody>`:'<tbody><tr><td style="padding:30px;color:var(--mu)">Chức năng rút tiền chưa được bật (admin cần chạy file supabase-update-5.sql).</td></tr></tbody>';
   const last=L[0];
-  if(last){[['#wdB','bank_name'],['#wdN','account_number'],['#wdO','account_name']].forEach(p=>{const el=$(p[0]);if(el&&!el.value&&document.activeElement!==el)el.value=last[p[1]]||''})}
+  if(last){
+    if(!$('#wdBs').value){const nm=last.bank_name||'',opt=[...$('#wdBs').options].find(o=>o.value===nm||o.text===nm);if(opt)$('#wdBs').value=opt.value||opt.text;else if(nm){$('#wdBs').value='__other';$('#wdB').value=nm}wdBankUI()}
+    [['#wdN','account_number'],['#wdO','account_name']].forEach(p=>{const el=$(p[0]);if(el&&!el.value&&document.activeElement!==el)el.value=last[p[1]]||''});
+  }
 }
 $('#fWd').onsubmit=async e=>{
   e.preventDefault();
   if(!S.me)return go('login');
-  const amt=Number(($('#wdA').value||'').replace(/\D/g,'')),bank=$('#wdB').value.trim(),no=$('#wdN').value.replace(/\s/g,''),nm=$('#wdO').value.trim();
+  const amt=Number(($('#wdA').value||'').replace(/\D/g,'')),bank=wdBank(),no=$('#wdN').value.replace(/\s/g,''),nm=$('#wdO').value.trim();
   let ok=setErr('#eWdA',amt<10000?'Số tiền rút tối thiểu là 10.000đ':amt>S.me.balance?'Số dư không đủ':'');
-  ok=setErr('#eWdB',bank.length<2?'Nhập tên ngân hàng':'')&&ok;
-  ok=setErr('#eWdN',!/^\d{6,20}$/.test(no)?'Số tài khoản gồm 6-20 chữ số':'')&&ok;
+  ok=setErr('#eWdB',bank.length<2?($('#wdBs').value==='__other'?'Nhập tên ngân hàng hoặc ví':'Hãy chọn ngân hàng hoặc ví'):'')&&ok;
+  const mm=bank==='Ví MoMo';
+  ok=setErr('#eWdN',mm?(!/^0\d{9}$/.test(no)?'Số điện thoại MoMo gồm 10 số, bắt đầu bằng 0':''):(!/^\d{6,20}$/.test(no)?'Số tài khoản gồm 6-20 chữ số':''))&&ok;
   ok=setErr('#eWdO',nm.length<2?'Nhập tên chủ tài khoản':'')&&ok;
   if(!ok)return;
   if(!confirm('Rút '+vnd(amt)+' về '+bank+' - '+no+' ('+nm+')?\nSố tiền sẽ được trừ khỏi số dư ngay và chờ admin chuyển khoản.'))return;
